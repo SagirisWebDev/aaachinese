@@ -1,5 +1,37 @@
-<!-- wp:template-part {"slug":"header"} /-->
-<!-- wp:group {"layout":{"inherit":true}} -->
-<div class="wp-block-group"><!-- wp:woocommerce/legacy-template {"template":"archive-product"} /--></div>
+<!-- wp:template-part {"slug":"header","theme":"aaachinese"} /-->
+
+<!-- wp:group {"tagName":"main","align":"wide","className":"max-w-content-size m-auto","style":{"border":{"radius":"0.5rem"},"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|50","left":"var:preset|spacing|50","right":"var:preset|spacing|50"},"margin":{"top":"var:preset|spacing|60","bottom":"var:preset|spacing|60"}}},"backgroundColor":"dark-grey","layout":{"type":"constrained"}} -->
+<main class="wp-block-group alignwide max-w-content-size m-auto has-dark-grey-background-color has-background" style="border-radius:0.5rem;margin-top:var(--wp--preset--spacing--60);margin-bottom:var(--wp--preset--spacing--60);padding-top:var(--wp--preset--spacing--50);padding-right:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--50);padding-left:var(--wp--preset--spacing--50)"><!-- wp:woocommerce/breadcrumbs {"fontSize":"medium","align":"","textColor":"accent","style":{"elements":{"link":{"color":{"text":"var:preset|color|accent"}}}}} /-->
+
+<!-- wp:query-title {"type":"archive","showPrefix":false,"style":{"elements":{"link":{"color":{"text":"var:preset|color|accent"}}}},"textColor":"accent","fontSize":"xx-large"} /-->
+
+<!-- wp:woocommerce/store-notices /-->
+
+<!-- wp:group {"layout":{"type":"flex","orientation":"vertical"}} -->
+<div class="wp-block-group"><!-- wp:shortcode -->
+[br_filter_single filter_id=833]
+<!-- /wp:shortcode -->
+
+<!-- wp:group {"style":{"dimensions":{"minHeight":"2rem"},"layout":{"selfStretch":"fit","flexSize":null}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"left"}} -->
+<div class="wp-block-group" style="min-height:2rem"><!-- wp:shortcode -->
+[br_filter_single filter_id=858]
+<!-- /wp:shortcode -->
+
+<!-- wp:shortcode -->
+[br_filter_single filter_id=859]
+<!-- /wp:shortcode --></div>
+<!-- /wp:group --></div>
 <!-- /wp:group -->
-<!-- wp:template-part {"slug":"footer"} /-->
+
+<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between"}} -->
+<div class="wp-block-group"><!-- wp:woocommerce/product-results-count {"textColor":"pure-white","fontSize":"small","style":{"elements":{"link":{"color":{"text":"var:preset|color|pure-white"}}}}} /-->
+
+<!-- wp:woocommerce/catalog-sorting /--></div>
+<!-- /wp:group -->
+
+<!-- wp:shortcode -->
+[products berocket_aapf=true]
+<!-- /wp:shortcode --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","theme":"aaachinese"} /-->
