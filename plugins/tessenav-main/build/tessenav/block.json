@@ -1,0 +1,177 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "sagiriswd/tessenav",
+  "version": "0.1.0",
+  "title": "TesseNav",
+  "category": "theme",
+  "icon": "screenoptions",
+  "description": "Add text, media, layout, design and theme blocks to the Navigation block.",
+  "keywords": [
+    "menu",
+    "navigation",
+    "links",
+    "mega menu"
+  ],
+  "example": {},
+  "attributes": {
+    "ref": {
+      "type": "object"
+    },
+    "textColor": {
+      "type": "string"
+    },
+    "customTextColor": {
+      "type": "string"
+    },
+    "rgbTextColor": {
+      "type": "string"
+    },
+    "backgroundColor": {
+      "type": "string"
+    },
+    "customBackgroundColor": {
+      "type": "string"
+    },
+    "rgbBackgroundColor": {
+      "type": "string"
+    },
+    "showSubmenuIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "openSubmenusOnClick": {
+      "type": "boolean",
+      "default": false
+    },
+    "overlayMenu": {
+      "type": "string",
+      "default": "mobile"
+    },
+    "icon": {
+      "type": "string",
+      "default": "handle"
+    },
+    "hasIcon": {
+      "type": "boolean",
+      "default": true
+    },
+    "__unstableLocation": {
+      "type": "string"
+    },
+    "overlayBackgroundColor": {
+      "type": "string"
+    },
+    "customOverlayBackgroundColor": {
+      "type": "string"
+    },
+    "overlayTextColor": {
+      "type": "string"
+    },
+    "customOverlayTextColor": {
+      "type": "string"
+    },
+    "maxNestingLevel": {
+      "type": "number",
+      "default": 5
+    },
+    "templateLock": {
+      "type": [
+        "string",
+        "boolean"
+      ],
+      "enum": [
+        "all",
+        "insert",
+        "contentOnly",
+        false
+      ]
+    }
+  },
+  "providesContext": {
+    "textColor": "textColor",
+    "customTextColor": "customTextColor",
+    "backgroundColor": "backgroundColor",
+    "customBackgroundColor": "customBackgroundColor",
+    "overlayTextColor": "overlayTextColor",
+    "customOverlayTextColor": "customOverlayTextColor",
+    "overlayBackgroundColor": "overlayBackgroundColor",
+    "customOverlayBackgroundColor": "customOverlayBackgroundColor",
+    "fontSize": "fontSize",
+    "customFontSize": "customFontSize",
+    "showSubmenuIcon": "showSubmenuIcon",
+    "openSubmenusOnClick": "openSubmenusOnClick",
+    "style": "style",
+    "maxNestingLevel": "maxNestingLevel"
+  },
+  "supports": {
+    "align": true,
+    "anchor": true,
+    "ariaLabel": true,
+    "html": false,
+    "color": {
+      "button": true,
+      "gradients": true,
+      "heading": true,
+      "link": true
+    },
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "__experimentalFontStyle": true,
+      "__experimentalFontWeight": true,
+      "__experimentalTextTransform": true,
+      "__experimentalFontFamily": true,
+      "__experimentalLetterSpacing": true,
+      "__experimentalTextDecoration": true,
+      "__experimentalSkipSerialization": [
+        "textDecoration"
+      ],
+      "__experimentalDefaultControls": {
+        "fontSize": true
+      }
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "blockGap": true
+    },
+    "layout": {
+      "allowSwitching": false,
+      "allowInheriting": true,
+      "allowEditing": true,
+      "allowCustomContentAndWideSize": true,
+      "allowJustification": true,
+      "allowOrientation": true,
+      "allowVerticalAlignment": true,
+      "allowSizingOnChildren": true,
+      "default": {
+        "type": "flex"
+      }
+    },
+    "background": {
+      "backgroundImage": true,
+      "backgroundSize": true
+    },
+    "dimensions": {
+      "aspectRatio": false,
+      "minHeight": true
+    },
+    "filter": {
+      "duotone": true
+    },
+    "position": {
+      "sticky": true
+    },
+    "shadow": true,
+    "interactivity": true,
+    "renaming": false,
+    "contentRole": true
+  },
+  "textdomain": "sagiriswd",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}

@@ -1,0 +1,32 @@
+/* Light outlines to see structure in the editor */
+.block-editor-block-list__block.wp-block-sagiriswd-tessenav.sagiriswd-tn {
+  outline: 1px dashed rgba(0,0,0,.1);
+  outline-offset: 2px;
+}
+
+/* Make the inline copy look tidy in editor */
+.sagiriswd-tn__inline {
+  gap: .5rem;
+
+  > .wp-block {
+    gap: .5rem;
+  }
+}
+
+/* Make the overlay preview obvious when opened in editor */
+.sagiriswd-tn__responsive-container.is-menu-open,
+.sagiriswd-tn__responsive-container.has-modal-open {
+  /* Editor canvas sits inside a scrollable pane—ensure overlay floats on top */
+  position: fixed;
+  inset: 0;
+
+  .sagiriswd-tn__inner {
+    flex-direction: column;
+  }
+}
+
+/* Editor toggles remain visible/usable */
+.sagiriswd-tn__toggle {
+  border-radius: 4px;
+  background: rgba(127,127,127,.08);
+}

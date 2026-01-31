@@ -1,0 +1,17 @@
+# IDE and OS files
+.DS_Store          # macOS hidden file
+.idea/             # JetBrains IDE configuration folders
+Thumbs.db          # Windows hidden file
+
+# Dependency directories
+node_modules/      # Node.js dependencies
+/build/            # Build output directory in the root
+/uploads/wp-staging/ folder  # WP Staging plugin
+
+# Compiled/Runtime files
+*.log              # All files ending with .log
+*.pyc              # Python compiled files
+/dist              # Distribution folder in the root directory
+
+# Sensitive information (e.g., environment variables)
+.env               # Environment variables file

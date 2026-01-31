@@ -1,0 +1,137 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "sagiriswd/tessenav-submenu",
+  "version": "0.1.0",
+  "title": "TesseNav Submenu",
+  "category": "design",
+  "icon": "smiley",
+  "parent": [
+    "sagiriswd/tessenav",
+    "sagiriswd/tessenav-submenu"
+  ],
+  "description": "Add a submenu to TesseNav.",
+  "keywords": [
+    "submenu",
+    "navigation",
+    "mega menu",
+    "links"
+  ],
+  "example": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "default": ""
+    },
+    "rel": {
+      "type": "string"
+    },
+    "id": {
+      "type": "number"
+    },
+    "type": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "opensInNewTab": {
+      "type": "boolean",
+      "default": false
+    },
+    "url": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "isTopLevelItem": {
+      "type": "boolean"
+    },
+    "customPanelWidth": {
+      "type": "number",
+      "default": 0
+    },
+    "isInSecondHalf": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "usesContext": [
+    "overlayTextColor",
+    "customOverlayTextColor",
+    "overlayBackgroundColor",
+    "customOverlayBackgroundColor",
+    "fontSize",
+    "customFontSize",
+    "showSubmenuIcon",
+    "maxNestingLevel",
+    "openSubmenusOnClick"
+  ],
+  "providesContext": {
+    "style": "style",
+    "textColor": "style.color.text",
+    "backgroundColor": "style.color.background",
+    "linkColor": "style.elements.link.color.text",
+    "gradientColor": "style.color.gradient"
+  },
+  "supports": {
+    "anchor": true,
+    "align": true,
+    "html": false,
+    "typography": {
+      "fontSize": true,
+      "lineHeight": true,
+      "__experimentalFontFamily": true,
+      "__experimentalFontWeight": true,
+      "__experimentalFontStyle": true,
+      "__experimentalTextTransform": true,
+      "__experimentalTextDecoration": true,
+      "__experimentalLetterSpacing": true,
+      "__experimentalDefaultControls": {
+        "fontSize": true
+      }
+    },
+    "color": {
+      "__experimentalDefaultControls": {
+        "text": true,
+        "background": true
+      },
+      "gradients": true,
+      "button": true,
+      "link": true,
+      "heading": true
+    },
+    "layout": {
+      "default": {
+        "type": "flex"
+      },
+      "allowSizingOnChildren": true
+    },
+    "background": {
+      "backgroundImage": true,
+      "backgroundSize": true
+    },
+    "filter": {
+      "duotone": true
+    },
+    "position": {
+      "sticky": true
+    },
+    "spacing": {
+      "margin": true,
+      "padding": true,
+      "blockGap": true
+    },
+    "shadow": true,
+    "interactivity": {
+      "clientNavigation": true
+    }
+  },
+  "textdomain": "sagiriswd",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php",
+  "viewScriptModule": "file:./view.js"
+}
