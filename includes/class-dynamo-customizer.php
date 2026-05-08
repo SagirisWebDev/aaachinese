@@ -3,10 +3,14 @@ declare(strict_types=1);
 
 class Dynamo_Customizer {
 
-    private Dynamo_Token_Registry $registry;
+    private Dynamo_Token_Registry  $registry;                                                                   
+    private Dynamo_CSS_Cache $cache;                                                                             
+    private Dynamo_CSS_Generator $generator;   
 
-    public function __construct(Dynamo_Token_Registry $registry) {
-        $this->registry = $registry;
+    public function __construct(Dynamo_Token_Registry $registry, Dynamo_CSS_Cache $cache, Dynamo_CSS_Generator $generator) {
+        $this->registry  = $registry;
+        $this->cache     = $cache;
+        $this->generator = $generator;
     }
 
     public function init(): void {
@@ -250,5 +254,11 @@ class Dynamo_Customizer {
             DYNAMO_VERSION,
             true
         );
+
+        
+        $css = $this->cache->get() ?? $this->generator->generate() ?? '';                                           
+        wp_localize_script('dynamo-customizer-preview', 'dynamoPreview', apply_filters('dynamo_customizer_preview_data', [
+            'initialCss' => $css,
+        ])); 
     }
 }

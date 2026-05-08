@@ -4,3 +4,4 @@ issues/
 .phpunit.result.cache
 .claude/
 phpunit.xml
+.agents/

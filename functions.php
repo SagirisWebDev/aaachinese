@@ -16,8 +16,9 @@ require_once DYNAMO_PATH . '/includes/class-dynamo-options.php';
 add_action('after_setup_theme', function(): void {
     $registry     = new Dynamo_Token_Registry();
     $cache        = new Dynamo_CSS_Cache();
-    $output       = new Dynamo_CSS_Output(new Dynamo_CSS_Generator($registry), $cache);
-    $customizer   = new Dynamo_Customizer($registry);
+    $generator    = new Dynamo_CSS_Generator($registry);
+    $output       = new Dynamo_CSS_Output($generator, $cache);
+    $customizer   = new Dynamo_Customizer($registry, $cache, $generator);
     $theme_json   = new Dynamo_Theme_JSON_Sync($registry);
     $options      = new Dynamo_Options();
     $output->init();

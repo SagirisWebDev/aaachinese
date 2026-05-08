@@ -19,16 +19,12 @@ class Dynamo_CSS_Output {
         $css = $this->cache->get();
 
         if (null === $css) {
-            $css  = $this->generator->generate();
+            $css  = $this->generator->generate() ?: '';
             $file_contents = file_get_contents(get_template_directory() . '/assets/css/style.css') ?: '';
             $css .= $file_contents;
             $this->cache->set($css);
         }
 
         echo '<style id="dynamo-dynamic-css">' . $css . "</style>\n";
-    }
-
-    public function enqueue_styles(): void {
-        // No longer needed since styles are printed directly in the head
     }
 }
