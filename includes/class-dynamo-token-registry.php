@@ -76,6 +76,14 @@ class Dynamo_Token_Registry {
 
         'woocommerce-header-cart-enabled'  => '1',
         'woocommerce-header-cart-position' => 'right',
+
+        'woocommerce-single-show-title'        => '1',
+        'woocommerce-single-show-price'        => '1',
+        'woocommerce-single-show-rating'       => '1',
+        'woocommerce-single-show-excerpt'      => '1',
+        'woocommerce-single-show-add-to-cart'  => '1',
+        'woocommerce-single-show-meta'         => '1',
+        'woocommerce-single-related-columns'   => '4',
     ];
 
     public function get(string $key): ?string {

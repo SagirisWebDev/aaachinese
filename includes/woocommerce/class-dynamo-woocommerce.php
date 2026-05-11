@@ -11,15 +11,26 @@ class Dynamo_WooCommerce {
 
     private const HEADER_CART_POSITIONS = ['left', 'center', 'right'];
 
+    private const SINGLE_PRODUCT_ELEMENTS = [
+        'title'       => ['callback' => 'woocommerce_template_single_title',       'priority' => 5],
+        'price'       => ['callback' => 'woocommerce_template_single_price',       'priority' => 10],
+        'rating'      => ['callback' => 'woocommerce_template_single_rating',      'priority' => 10],
+        'excerpt'     => ['callback' => 'woocommerce_template_single_excerpt',     'priority' => 20],
+        'add-to-cart' => ['callback' => 'woocommerce_template_single_add_to_cart', 'priority' => 30],
+        'meta'        => ['callback' => 'woocommerce_template_single_meta',        'priority' => 40],
+    ];
+
     public function init(): void {
         add_action('after_setup_theme', [$this, 'register_theme_support']);
         add_action('after_setup_theme', [$this, 'replace_content_wrappers'], 11);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('customize_register', [$this, 'register_customizer']);
         add_action('dynamo_header_cart', [$this, 'render_header_cart_icon']);
+        add_action('template_redirect', [$this, 'apply_single_product_visibility']);
         add_filter('loop_shop_columns', [$this, 'filter_loop_shop_columns']);
         add_filter('loop_shop_per_page', [$this, 'filter_loop_shop_per_page']);
         add_filter('woocommerce_add_to_cart_fragments', [$this, 'add_cart_count_fragment']);
+        add_filter('related_products_args', [$this, 'filter_related_products_args']);
     }
 
     public function register_customizer(object $wp_customize): void {
@@ -31,6 +42,99 @@ class Dynamo_WooCommerce {
         $this->register_colours_section($wp_customize);
         $this->register_shop_layout_section($wp_customize);
         $this->register_header_cart_section($wp_customize);
+        $this->register_single_product_section($wp_customize);
+    }
+
+    private function register_single_product_section(object $wp_customize): void {
+        $wp_customize->add_section('dynamo_woocommerce_single_product', [
+            'title' => __('Single Product', 'dynamo'),
+            'panel' => 'dynamo_woocommerce',
+        ]);
+
+        $registry = new Dynamo_Token_Registry();
+
+        $labels = [
+            'title'        => __('Show title', 'dynamo'),
+            'price'        => __('Show price', 'dynamo'),
+            'rating'       => __('Show star rating', 'dynamo'),
+            'excerpt'      => __('Show short description', 'dynamo'),
+            'add-to-cart'  => __('Show add-to-cart button', 'dynamo'),
+            'meta'         => __('Show product meta (SKU, categories, tags)', 'dynamo'),
+        ];
+
+        foreach ($labels as $element => $label) {
+            $token      = 'woocommerce-single-show-' . $element;
+            $setting_id = 'dynamo_woocommerce_single_show_' . str_replace('-', '_', $element);
+            $wp_customize->add_setting($setting_id, [
+                'default'           => $registry->get($token) ?? '1',
+                'sanitize_callback' => [$this, 'sanitize_boolish'],
+                'transport'         => 'postMessage',
+            ]);
+            $wp_customize->add_control(new WP_Customize_Control($wp_customize, $setting_id, [
+                'label'   => $label,
+                'section' => 'dynamo_woocommerce_single_product',
+                'type'    => 'checkbox',
+            ]));
+        }
+
+        $wp_customize->add_setting('dynamo_woocommerce_single_related_columns', [
+            'default'           => $registry->get('woocommerce-single-related-columns') ?? '4',
+            'sanitize_callback' => [$this, 'sanitize_related_columns'],
+            'transport'         => 'postMessage',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Control($wp_customize, 'dynamo_woocommerce_single_related_columns', [
+            'label'       => __('Related products columns', 'dynamo'),
+            'section'     => 'dynamo_woocommerce_single_product',
+            'type'        => 'number',
+            'input_attrs' => ['min' => 1, 'max' => 6, 'step' => 1],
+        ]));
+    }
+
+    public function sanitize_related_columns(mixed $value): string {
+        $int = (int) $value;
+        if ($int < 1) {
+            $int = 1;
+        } elseif ($int > 6) {
+            $int = 6;
+        }
+        return (string) $int;
+    }
+
+    public function apply_single_product_visibility(): void {
+        foreach (self::SINGLE_PRODUCT_ELEMENTS as $element => $spec) {
+            if (!$this->is_single_element_visible($element)) {
+                remove_action('woocommerce_single_product_summary', $spec['callback'], $spec['priority']);
+            }
+        }
+    }
+
+    private function is_single_element_visible(string $element): bool {
+        $setting_id = 'dynamo_woocommerce_single_show_' . str_replace('-', '_', $element);
+        $saved      = get_theme_mod($setting_id);
+        if (false === $saved) {
+            $saved = (new Dynamo_Token_Registry())->get('woocommerce-single-show-' . $element) ?? '1';
+        }
+        return '1' === (string) $saved;
+    }
+
+    public function filter_related_products_args(array $args): array {
+        $columns = $this->resolve_related_columns();
+        $args['columns']        = $columns;
+        $args['posts_per_page'] = $columns;
+        return $args;
+    }
+
+    private function resolve_related_columns(): int {
+        $saved = get_theme_mod('dynamo_woocommerce_single_related_columns');
+        $value = (false !== $saved && '' !== $saved)
+            ? (int) $saved
+            : (int) ((new Dynamo_Token_Registry())->get('woocommerce-single-related-columns') ?? 4);
+        if ($value < 1) {
+            $value = 1;
+        } elseif ($value > 6) {
+            $value = 6;
+        }
+        return $value;
     }
 
     private function register_header_cart_section(object $wp_customize): void {

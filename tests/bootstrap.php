@@ -122,13 +122,15 @@ function register_setting(string $option_group, string $option_name, array $args
 
 function plugin_dir_url(): string { return DYNAMO_URL; }
 
-function remove_action(string $tag, mixed $callback, int $priority = 10): bool {
-    $GLOBALS['wp_removed_actions'][] = $tag;
+function remove_action(string $tag, mixed $callback = null, int $priority = 10): bool {
+    $GLOBALS['wp_removed_actions'][]      = $tag;
+    $GLOBALS['wp_removed_action_specs'][] = ['tag' => $tag, 'callback' => $callback, 'priority' => $priority];
     return true;
 }
 
-function remove_filter(string $tag, mixed $callback, int $priority = 10): bool {
-    $GLOBALS['wp_removed_actions'][] = $tag;
+function remove_filter(string $tag, mixed $callback = null, int $priority = 10): bool {
+    $GLOBALS['wp_removed_actions'][]      = $tag;
+    $GLOBALS['wp_removed_action_specs'][] = ['tag' => $tag, 'callback' => $callback, 'priority' => $priority];
     return true;
 }
 
