@@ -27,6 +27,8 @@ class Dynamo_WooCommerce {
         add_action('customize_register', [$this, 'register_customizer']);
         add_action('dynamo_header_cart', [$this, 'render_header_cart_icon']);
         add_action('template_redirect', [$this, 'apply_single_product_visibility']);
+        add_action('woocommerce_before_quantity_input_field', [$this, 'render_quantity_minus_button']);
+        add_action('woocommerce_after_quantity_input_field', [$this, 'render_quantity_plus_button']);
         add_filter('loop_shop_columns', [$this, 'filter_loop_shop_columns']);
         add_filter('loop_shop_per_page', [$this, 'filter_loop_shop_per_page']);
         add_filter('woocommerce_add_to_cart_fragments', [$this, 'add_cart_count_fragment']);
@@ -43,6 +45,50 @@ class Dynamo_WooCommerce {
         $this->register_shop_layout_section($wp_customize);
         $this->register_header_cart_section($wp_customize);
         $this->register_single_product_section($wp_customize);
+        $this->register_quantity_buttons_section($wp_customize);
+    }
+
+    private function register_quantity_buttons_section(object $wp_customize): void {
+        $wp_customize->add_section('dynamo_woocommerce_quantity_buttons', [
+            'title' => __('Quantity Buttons', 'dynamo'),
+            'panel' => 'dynamo_woocommerce',
+        ]);
+
+        $registry = new Dynamo_Token_Registry();
+        $wp_customize->add_setting('dynamo_woocommerce_quantity_buttons_enabled', [
+            'default'           => $registry->get('woocommerce-quantity-buttons-enabled') ?? '1',
+            'sanitize_callback' => [$this, 'sanitize_boolish'],
+            'transport'         => 'postMessage',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Control($wp_customize, 'dynamo_woocommerce_quantity_buttons_enabled', [
+            'label'   => __('Show +/- buttons on quantity inputs', 'dynamo'),
+            'section' => 'dynamo_woocommerce_quantity_buttons',
+            'type'    => 'checkbox',
+        ]));
+    }
+
+    public function render_quantity_minus_button(): void {
+        if (!$this->is_quantity_buttons_enabled()) {
+            return;
+        }
+        echo '<button type="button" class="dynamo-quantity-minus" aria-label="' . esc_attr__('Decrease quantity', 'dynamo') . '">'
+            . '<span aria-hidden="true">&minus;</span></button>';
+    }
+
+    public function render_quantity_plus_button(): void {
+        if (!$this->is_quantity_buttons_enabled()) {
+            return;
+        }
+        echo '<button type="button" class="dynamo-quantity-plus" aria-label="' . esc_attr__('Increase quantity', 'dynamo') . '">'
+            . '<span aria-hidden="true">+</span></button>';
+    }
+
+    private function is_quantity_buttons_enabled(): bool {
+        $saved = get_theme_mod('dynamo_woocommerce_quantity_buttons_enabled');
+        if (false === $saved) {
+            $saved = (new Dynamo_Token_Registry())->get('woocommerce-quantity-buttons-enabled') ?? '1';
+        }
+        return '1' === (string) $saved;
     }
 
     private function register_single_product_section(object $wp_customize): void {
@@ -378,6 +424,15 @@ class Dynamo_WooCommerce {
             [],
             DYNAMO_VERSION
         );
+        if ($this->is_quantity_buttons_enabled()) {
+            wp_enqueue_script(
+                'dynamo-woocommerce-quantity',
+                DYNAMO_URL . 'assets/js/woocommerce-quantity.js',
+                [],
+                DYNAMO_VERSION,
+                true
+            );
+        }
     }
 
     private function is_woocommerce_page(): bool {

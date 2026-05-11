@@ -84,6 +84,8 @@ class Dynamo_Token_Registry {
         'woocommerce-single-show-add-to-cart'  => '1',
         'woocommerce-single-show-meta'         => '1',
         'woocommerce-single-related-columns'   => '4',
+
+        'woocommerce-quantity-buttons-enabled' => '1',
     ];
 
     public function get(string $key): ?string {
