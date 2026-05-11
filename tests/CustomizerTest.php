@@ -29,11 +29,14 @@ class FakeCustomizeManager {
 
 class CustomizerTest extends TestCase {
 
+    use MakesCustomizer;
+
     protected function setUp(): void {
         $GLOBALS['wp_filter']     = [];
         $GLOBALS['wp_transients'] = [];
-        // Reset bust tracker
-        $GLOBALS['wp_transients']['dynamo_css_' . DYNAMO_VERSION] = 'cached';
+        // Seed via the cache class so the transient key matches whatever scheme
+        // the cache uses internally (currently includes style.css mtime).
+        (new Dynamo_CSS_Cache())->set('cached');
     }
 
     private function fixtureManifest(): Dynamo_Font_Manifest {

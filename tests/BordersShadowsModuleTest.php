@@ -5,6 +5,8 @@ use PHPUnit\Framework\TestCase;
 
 class BordersShadowsModuleTest extends TestCase {
 
+    use MakesCustomizer;
+
     private array $border_tokens = [
         'borders-radius' => '0.375rem',
         'borders-color'  => '#e5e7eb',
@@ -68,7 +70,7 @@ class BordersShadowsModuleTest extends TestCase {
 
     public function test_customizer_register_adds_borders_shadows_panel(): void {
         $manager    = new FakeCustomizeManager();
-        $customizer = new Dynamo_Customizer(new Dynamo_Token_Registry());
+        $customizer = $this->make_customizer();
         $customizer->register($manager);
 
         $this->assertArrayHasKey('dynamo_borders_shadows', $manager->panels);
@@ -76,7 +78,7 @@ class BordersShadowsModuleTest extends TestCase {
 
     public function test_customizer_register_adds_borders_shadows_section(): void {
         $manager    = new FakeCustomizeManager();
-        $customizer = new Dynamo_Customizer(new Dynamo_Token_Registry());
+        $customizer = $this->make_customizer();
         $customizer->register($manager);
 
         $this->assertArrayHasKey('dynamo_borders_shadows_section', $manager->sections);
@@ -85,7 +87,7 @@ class BordersShadowsModuleTest extends TestCase {
 
     public function test_customizer_register_adds_all_border_and_shadow_controls(): void {
         $manager    = new FakeCustomizeManager();
-        $customizer = new Dynamo_Customizer(new Dynamo_Token_Registry());
+        $customizer = $this->make_customizer();
         $customizer->register($manager);
 
         $control_ids = array_map(fn($c) => $c->id, $manager->controls);
@@ -100,7 +102,7 @@ class BordersShadowsModuleTest extends TestCase {
 
     public function test_border_and_shadow_settings_use_postmessage_transport(): void {
         $manager    = new FakeCustomizeManager();
-        $customizer = new Dynamo_Customizer(new Dynamo_Token_Registry());
+        $customizer = $this->make_customizer();
         $customizer->register($manager);
 
         foreach (array_keys($this->allTokens()) as $token) {

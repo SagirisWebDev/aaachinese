@@ -147,6 +147,7 @@ function wp_kses_post(string $data): string {
     return $data;
 }
 
+
 function update_option(string $option, mixed $value): bool {
     $GLOBALS['wp_options'][$option] = $value;
     $GLOBALS['wp_update_option_calls'][] = $option;
@@ -223,6 +224,7 @@ require_once DYNAMO_PATH . 'includes/class-dynamo-css-cache.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-customizer.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-theme-json-sync.php';
 require_once DYNAMO_PATH . 'includes/woocommerce/class-dynamo-woocommerce.php';
+require_once __DIR__ . '/MakesCustomizer.php';
 
 function dynamo_bust_css_cache(): void {
     (new Dynamo_CSS_Cache())->bust();
