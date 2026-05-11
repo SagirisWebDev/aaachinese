@@ -70,6 +70,9 @@ class Dynamo_Token_Registry {
         'woocommerce-sale-badge-bg'    => '#dc2626',
         'woocommerce-sale-badge-color' => '#ffffff',
         'woocommerce-star-color'       => '#f59e0b',
+
+        'woocommerce-shop-columns'           => '3',
+        'woocommerce-shop-products-per-page' => '12',
     ];
 
     public function get(string $key): ?string {
