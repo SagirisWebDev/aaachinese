@@ -27,8 +27,10 @@ class Dynamo_WooCommerce {
         add_action('customize_register', [$this, 'register_customizer']);
         add_action('dynamo_header_cart', [$this, 'render_header_cart_icon']);
         add_action('template_redirect', [$this, 'apply_single_product_visibility']);
+        add_action('template_redirect', [$this, 'apply_cart_visibility']);
         add_action('woocommerce_before_quantity_input_field', [$this, 'render_quantity_minus_button']);
         add_action('woocommerce_after_quantity_input_field', [$this, 'render_quantity_plus_button']);
+        add_filter('gettext', [$this, 'filter_cart_button_text'], 10, 3);
         add_filter('loop_shop_columns', [$this, 'filter_loop_shop_columns']);
         add_filter('loop_shop_per_page', [$this, 'filter_loop_shop_per_page']);
         add_filter('woocommerce_add_to_cart_fragments', [$this, 'add_cart_count_fragment']);
@@ -46,6 +48,64 @@ class Dynamo_WooCommerce {
         $this->register_header_cart_section($wp_customize);
         $this->register_single_product_section($wp_customize);
         $this->register_quantity_buttons_section($wp_customize);
+        $this->register_cart_checkout_section($wp_customize);
+    }
+
+    private function register_cart_checkout_section(object $wp_customize): void {
+        $wp_customize->add_section('dynamo_woocommerce_cart_checkout', [
+            'title' => __('Cart & Checkout', 'dynamo'),
+            'panel' => 'dynamo_woocommerce',
+        ]);
+
+        $registry = new Dynamo_Token_Registry();
+
+        $wp_customize->add_setting('dynamo_woocommerce_cart_button_text', [
+            'default'           => $registry->get('woocommerce-cart-checkout-button-text') ?? '',
+            'sanitize_callback' => 'sanitize_text_field',
+            'transport'         => 'postMessage',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Control($wp_customize, 'dynamo_woocommerce_cart_button_text', [
+            'label'       => __('Checkout button text', 'dynamo'),
+            'description' => __('Leave empty to keep the default WooCommerce label.', 'dynamo'),
+            'section'     => 'dynamo_woocommerce_cart_checkout',
+            'type'        => 'text',
+        ]));
+
+        $wp_customize->add_setting('dynamo_woocommerce_cross_sells_enabled', [
+            'default'           => $registry->get('woocommerce-cart-cross-sells-enabled') ?? '1',
+            'sanitize_callback' => [$this, 'sanitize_boolish'],
+            'transport'         => 'postMessage',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Control($wp_customize, 'dynamo_woocommerce_cross_sells_enabled', [
+            'label'   => __('Show cross-sells ("You may also like") on the cart page', 'dynamo'),
+            'section' => 'dynamo_woocommerce_cart_checkout',
+            'type'    => 'checkbox',
+        ]));
+    }
+
+    public function filter_cart_button_text(string $translated, string $original, string $domain): string {
+        if ($domain !== 'woocommerce' || $original !== 'Proceed to checkout') {
+            return $translated;
+        }
+        $custom = get_theme_mod('dynamo_woocommerce_cart_button_text');
+        if (is_string($custom) && '' !== trim($custom)) {
+            return $custom;
+        }
+        return $translated;
+    }
+
+    public function apply_cart_visibility(): void {
+        if (!$this->is_cross_sells_enabled()) {
+            remove_action('woocommerce_cart_collaterals', 'woocommerce_cross_sell_display');
+        }
+    }
+
+    private function is_cross_sells_enabled(): bool {
+        $saved = get_theme_mod('dynamo_woocommerce_cross_sells_enabled');
+        if (false === $saved) {
+            $saved = (new Dynamo_Token_Registry())->get('woocommerce-cart-cross-sells-enabled') ?? '1';
+        }
+        return '1' === (string) $saved;
     }
 
     private function register_quantity_buttons_section(object $wp_customize): void {

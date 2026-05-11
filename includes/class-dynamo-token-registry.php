@@ -86,6 +86,9 @@ class Dynamo_Token_Registry {
         'woocommerce-single-related-columns'   => '4',
 
         'woocommerce-quantity-buttons-enabled' => '1',
+
+        'woocommerce-cart-checkout-button-text' => '',
+        'woocommerce-cart-cross-sells-enabled'  => '1',
     ];
 
     public function get(string $key): ?string {
