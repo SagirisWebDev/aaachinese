@@ -12,6 +12,9 @@ $GLOBALS['wp_theme_mods']         = [];
 $GLOBALS['wp_theme_pages']        = [];
 $GLOBALS['wp_registered_settings'] = [];
 $GLOBALS['wp_enqueued_scripts']   = [];
+$GLOBALS['wp_enqueued_styles']    = [];
+$GLOBALS['wp_theme_supports']     = [];
+$GLOBALS['wp_removed_actions']    = [];
 
 function add_filter(string $tag, callable $callback, int $priority = 10, int $accepted_args = 1): void {
     $GLOBALS['wp_filter'][$tag][$priority][] = $callback;
@@ -61,7 +64,36 @@ function wp_enqueue_script(string $handle, string $src = '', array $deps = [], m
     $GLOBALS['wp_enqueued_script_deps'][$handle] = $deps;
 }
 
-function wp_enqueue_style(): void {}
+function wp_enqueue_style(string $handle = '', string $src = '', array $deps = [], mixed $ver = false, string $media = 'all'): void {
+    if ($handle !== '') {
+        $GLOBALS['wp_enqueued_styles'][] = $handle;
+    }
+}
+
+function add_theme_support(string $feature, mixed ...$args): bool {
+    $GLOBALS['wp_theme_supports'][$feature] = $args === [] ? true : $args;
+    return true;
+}
+
+function current_theme_supports(string $feature): bool {
+    return array_key_exists($feature, $GLOBALS['wp_theme_supports'] ?? []);
+}
+
+function is_woocommerce(): bool {
+    return (bool) ($GLOBALS['wp_is_woocommerce'] ?? false);
+}
+
+function is_cart(): bool {
+    return (bool) ($GLOBALS['wp_is_cart'] ?? false);
+}
+
+function is_checkout(): bool {
+    return (bool) ($GLOBALS['wp_is_checkout'] ?? false);
+}
+
+function is_account_page(): bool {
+    return (bool) ($GLOBALS['wp_is_account_page'] ?? false);
+}
 
 function add_theme_page(string $page_title, string $menu_title, string $capability, string $menu_slug, ?callable $callback = null): void {
     $GLOBALS['wp_theme_pages'][] = $menu_slug;
@@ -190,6 +222,7 @@ require_once DYNAMO_PATH . 'includes/class-dynamo-css-generator.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-css-cache.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-customizer.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-theme-json-sync.php';
+require_once DYNAMO_PATH . 'includes/woocommerce/class-dynamo-woocommerce.php';
 
 function dynamo_bust_css_cache(): void {
     (new Dynamo_CSS_Cache())->bust();

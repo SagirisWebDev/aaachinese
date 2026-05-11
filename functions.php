@@ -15,6 +15,7 @@ require_once DYNAMO_PATH . '/includes/class-dynamo-customizer.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-theme-json-sync.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-options.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-breadcrumbs.php';
+require_once DYNAMO_PATH . '/includes/woocommerce/class-dynamo-woocommerce.php';
 
 add_action('after_setup_theme', function(): void {
     $registry      = new Dynamo_Token_Registry();
@@ -32,6 +33,10 @@ add_action('after_setup_theme', function(): void {
     $theme_json->init();
     $options->init();
     add_action('admin_notices', [$fonts, 'render_admin_notice']);
+
+    if (class_exists('WooCommerce')) {
+        (new Dynamo_WooCommerce())->init();
+    }
 });
 
 add_action('after_setup_theme', function(): void {
