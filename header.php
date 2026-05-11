@@ -38,5 +38,6 @@
             'fallback_cb'     => false,
         ] );
         ?>
+        <?php do_action( 'dynamo_header_cart' ); ?>
     </div>
 </header>

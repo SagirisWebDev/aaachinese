@@ -95,6 +95,23 @@ function is_account_page(): bool {
     return (bool) ($GLOBALS['wp_is_account_page'] ?? false);
 }
 
+function wc_get_cart_url(): string {
+    return $GLOBALS['wc_cart_url'] ?? 'http://localhost/cart/';
+}
+
+function WC(): object {
+    return new class {
+        public object $cart;
+        public function __construct() {
+            $this->cart = new class {
+                public function get_cart_contents_count(): int {
+                    return (int) ($GLOBALS['wc_cart_count'] ?? 0);
+                }
+            };
+        }
+    };
+}
+
 function add_theme_page(string $page_title, string $menu_title, string $capability, string $menu_slug, ?callable $callback = null): void {
     $GLOBALS['wp_theme_pages'][] = $menu_slug;
 }

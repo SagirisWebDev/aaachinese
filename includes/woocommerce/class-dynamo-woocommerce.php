@@ -9,13 +9,17 @@ class Dynamo_WooCommerce {
         'woocommerce-star-color'       => 'Star Rating',
     ];
 
+    private const HEADER_CART_POSITIONS = ['left', 'center', 'right'];
+
     public function init(): void {
         add_action('after_setup_theme', [$this, 'register_theme_support']);
         add_action('after_setup_theme', [$this, 'replace_content_wrappers'], 11);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('customize_register', [$this, 'register_customizer']);
+        add_action('dynamo_header_cart', [$this, 'render_header_cart_icon']);
         add_filter('loop_shop_columns', [$this, 'filter_loop_shop_columns']);
         add_filter('loop_shop_per_page', [$this, 'filter_loop_shop_per_page']);
+        add_filter('woocommerce_add_to_cart_fragments', [$this, 'add_cart_count_fragment']);
     }
 
     public function register_customizer(object $wp_customize): void {
@@ -26,6 +30,105 @@ class Dynamo_WooCommerce {
 
         $this->register_colours_section($wp_customize);
         $this->register_shop_layout_section($wp_customize);
+        $this->register_header_cart_section($wp_customize);
+    }
+
+    private function register_header_cart_section(object $wp_customize): void {
+        $wp_customize->add_section('dynamo_woocommerce_header_cart', [
+            'title' => __('Header Cart', 'dynamo'),
+            'panel' => 'dynamo_woocommerce',
+        ]);
+
+        $registry = new Dynamo_Token_Registry();
+
+        $wp_customize->add_setting('dynamo_woocommerce_header_cart_enabled', [
+            'default'           => $registry->get('woocommerce-header-cart-enabled') ?? '1',
+            'sanitize_callback' => [$this, 'sanitize_boolish'],
+            'transport'         => 'postMessage',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Control($wp_customize, 'dynamo_woocommerce_header_cart_enabled', [
+            'label'   => __('Show cart icon in header', 'dynamo'),
+            'section' => 'dynamo_woocommerce_header_cart',
+            'type'    => 'checkbox',
+        ]));
+
+        $wp_customize->add_setting('dynamo_woocommerce_header_cart_position', [
+            'default'           => $registry->get('woocommerce-header-cart-position') ?? 'right',
+            'sanitize_callback' => [$this, 'sanitize_header_cart_position'],
+            'transport'         => 'postMessage',
+        ]);
+        $wp_customize->add_control(new WP_Customize_Control($wp_customize, 'dynamo_woocommerce_header_cart_position', [
+            'label'   => __('Position', 'dynamo'),
+            'section' => 'dynamo_woocommerce_header_cart',
+            'type'    => 'select',
+            'choices' => [
+                'left'   => __('Left', 'dynamo'),
+                'center' => __('Center', 'dynamo'),
+                'right'  => __('Right', 'dynamo'),
+            ],
+        ]));
+    }
+
+    public function sanitize_boolish(mixed $value): string {
+        return $value && '0' !== (string) $value ? '1' : '0';
+    }
+
+    public function sanitize_header_cart_position(mixed $value): string {
+        $value = is_string($value) ? $value : '';
+        return in_array($value, self::HEADER_CART_POSITIONS, true) ? $value : 'right';
+    }
+
+    public function render_header_cart_icon(): void {
+        if (!$this->is_header_cart_enabled()) {
+            return;
+        }
+
+        $position = $this->get_header_cart_position();
+        $count    = $this->cart_count();
+        $url      = function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart/');
+
+        echo '<a class="dynamo-header-cart dynamo-header-cart--' . esc_attr($position) . '" href="' . esc_url($url) . '" aria-label="' . esc_attr__('View cart', 'dynamo') . '">'
+            . '<svg class="dynamo-header-cart__icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="24" height="24">'
+            . '<path d="M6 6h15l-1.5 9h-12L6 6Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
+            . '<circle cx="9" cy="20" r="1.5" fill="currentColor"/>'
+            . '<circle cx="18" cy="20" r="1.5" fill="currentColor"/>'
+            . '<path d="M6 6L4 3H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+            . '</svg>'
+            . '<span class="dynamo-header-cart__count">' . esc_html((string) $count) . '</span>'
+            . '</a>';
+    }
+
+    public function add_cart_count_fragment(array $fragments): array {
+        $fragments['span.dynamo-header-cart__count'] =
+            '<span class="dynamo-header-cart__count">' . esc_html((string) $this->cart_count()) . '</span>';
+        return $fragments;
+    }
+
+    private function is_header_cart_enabled(): bool {
+        $saved = get_theme_mod('dynamo_woocommerce_header_cart_enabled');
+        if (false === $saved) {
+            $saved = (new Dynamo_Token_Registry())->get('woocommerce-header-cart-enabled') ?? '1';
+        }
+        return '1' === (string) $saved;
+    }
+
+    private function get_header_cart_position(): string {
+        $saved = get_theme_mod('dynamo_woocommerce_header_cart_position');
+        $value = is_string($saved) && '' !== $saved
+            ? $saved
+            : ((new Dynamo_Token_Registry())->get('woocommerce-header-cart-position') ?? 'right');
+        return in_array($value, self::HEADER_CART_POSITIONS, true) ? $value : 'right';
+    }
+
+    private function cart_count(): int {
+        if (!function_exists('WC')) {
+            return 0;
+        }
+        $wc = WC();
+        if (!isset($wc->cart) || !is_object($wc->cart)) {
+            return 0;
+        }
+        return (int) $wc->cart->get_cart_contents_count();
     }
 
     private function register_colours_section(object $wp_customize): void {
@@ -159,6 +262,9 @@ class Dynamo_WooCommerce {
     }
 
     public function enqueue_assets(): void {
+        if ($this->is_header_cart_enabled()) {
+            wp_enqueue_script('wc-cart-fragments');
+        }
         if (!$this->is_woocommerce_page()) {
             return;
         }

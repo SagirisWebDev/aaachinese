@@ -73,6 +73,9 @@ class Dynamo_Token_Registry {
 
         'woocommerce-shop-columns'           => '3',
         'woocommerce-shop-products-per-page' => '12',
+
+        'woocommerce-header-cart-enabled'  => '1',
+        'woocommerce-header-cart-position' => 'right',
     ];
 
     public function get(string $key): ?string {
