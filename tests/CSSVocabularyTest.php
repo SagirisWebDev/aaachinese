@@ -65,6 +65,42 @@ class CSSVocabularyTest extends TestCase {
         $this->assertTrue(Dynamo_CSS_Vocabulary::is_unit('svh'));
     }
 
+    public function test_type_categories_for_text_returns_string(): void {
+        $this->assertSame(['string'], Dynamo_CSS_Vocabulary::type_categories('text'));
+    }
+
+    public function test_type_categories_for_textarea_returns_string(): void {
+        $this->assertSame(['string'], Dynamo_CSS_Vocabulary::type_categories('textarea'));
+    }
+
+    public function test_default_sanitizer_for_text_is_sanitize_text_field(): void {
+        $this->assertSame('sanitize_text_field', Dynamo_CSS_Vocabulary::default_sanitizer('text'));
+    }
+
+    public function test_default_sanitizer_for_textarea_is_sanitize_textarea_field(): void {
+        $this->assertSame('sanitize_textarea_field', Dynamo_CSS_Vocabulary::default_sanitizer('textarea'));
+    }
+
+    public function test_default_value_for_text_is_empty_string(): void {
+        $this->assertSame('', Dynamo_CSS_Vocabulary::default_value('text'));
+    }
+
+    public function test_default_value_for_textarea_is_empty_string(): void {
+        $this->assertSame('', Dynamo_CSS_Vocabulary::default_value('textarea'));
+    }
+
+    public function test_property_categories_for_font_family_includes_string(): void {
+        $this->assertContains('string', Dynamo_CSS_Vocabulary::property_categories('font-family'));
+    }
+
+    public function test_property_categories_for_box_shadow_includes_any(): void {
+        $this->assertContains('any', Dynamo_CSS_Vocabulary::property_categories('box-shadow'));
+    }
+
+    public function test_property_categories_for_content_includes_string(): void {
+        $this->assertContains('string', Dynamo_CSS_Vocabulary::property_categories('content'));
+    }
+
     public function test_dynamo_binding_categories_filter_extends_type_map(): void {
         add_filter('dynamo_binding_categories', function(array $map): array {
             $map['custom-type'] = ['keyword'];

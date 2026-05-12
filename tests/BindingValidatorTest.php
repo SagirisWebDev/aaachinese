@@ -109,4 +109,52 @@ class BindingValidatorTest extends TestCase {
         $errors = (new Dynamo_Binding_Validator())->validate($args);
         $this->assertSame([], $errors);
     }
+
+    private function validTextArgs(array $overrides = []): array {
+        return array_merge([
+            'id'       => 'heading_font',
+            'type'     => 'text',
+            'label'    => 'Heading font',
+            'section'  => 'typography',
+            'selector' => 'h1, h2, h3',
+            'property' => 'font-family',
+        ], $overrides);
+    }
+
+    public function test_text_with_font_family_is_valid(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validTextArgs());
+        $this->assertSame([], $errors);
+    }
+
+    public function test_textarea_with_font_family_is_valid(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validTextArgs(['type' => 'textarea']));
+        $this->assertSame([], $errors);
+    }
+
+    public function test_text_with_color_property_is_incompatible(): void {
+        // text → [string]; background-color → [color]; no intersection, no 'any' → reject.
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validTextArgs([
+            'property' => 'background-color',
+        ]));
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('incompatible', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_text_with_any_property_is_valid(): void {
+        // text → [string]; box-shadow → [any]; 'any' is the open category, must pass.
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validTextArgs([
+            'id'       => 'heading_shadow',
+            'property' => 'box-shadow',
+        ]));
+        $this->assertSame([], $errors);
+    }
+
+    public function test_textarea_with_color_property_is_incompatible(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validTextArgs([
+            'type'     => 'textarea',
+            'property' => 'color',
+        ]));
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('incompatible', strtolower(implode(' ', $errors)));
+    }
 }

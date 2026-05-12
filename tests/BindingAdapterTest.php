@@ -119,4 +119,57 @@ class BindingAdapterTest extends TestCase {
         ))->apply($manager);
         $this->assertSame('#ff0000', $manager->settings['dynamo_header_bg']['default']);
     }
+
+    private function textRegistry(array $overrides = []): Dynamo_Binding_Registry {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register(array_merge([
+            'id'       => 'heading_font',
+            'type'     => 'text',
+            'label'    => 'Heading font',
+            'section'  => 'typography',
+            'selector' => 'h1, h2, h3',
+            'property' => 'font-family',
+        ], $overrides));
+        return $registry;
+    }
+
+    public function test_text_type_uses_generic_control_with_type_text(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->textRegistry()))->apply($manager);
+        $this->assertCount(1, $manager->controls);
+        $control = $manager->controls[0];
+        $this->assertInstanceOf(WP_Customize_Control::class, $control);
+        $this->assertNotInstanceOf(WP_Customize_Color_Control::class, $control);
+        $this->assertSame('text', $control->args['type']);
+    }
+
+    public function test_text_type_uses_sanitize_text_field_by_default(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->textRegistry()))->apply($manager);
+        $this->assertSame('sanitize_text_field', $manager->settings['dynamo_heading_font']['sanitize_callback']);
+    }
+
+    public function test_textarea_type_uses_generic_control_with_type_textarea(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(
+            $this->textRegistry(['type' => 'textarea', 'property' => 'content', 'selector' => '.banner::before'])
+        ))->apply($manager);
+        $control = $manager->controls[0];
+        $this->assertInstanceOf(WP_Customize_Control::class, $control);
+        $this->assertSame('textarea', $control->args['type']);
+    }
+
+    public function test_textarea_type_uses_sanitize_textarea_field_by_default(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(
+            $this->textRegistry(['type' => 'textarea', 'property' => 'content', 'selector' => '.banner::before'])
+        ))->apply($manager);
+        $this->assertSame('sanitize_textarea_field', $manager->settings['dynamo_heading_font']['sanitize_callback']);
+    }
+
+    public function test_text_default_is_empty_string_when_omitted(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->textRegistry()))->apply($manager);
+        $this->assertSame('', $manager->settings['dynamo_heading_font']['default']);
+    }
 }

@@ -83,9 +83,27 @@ class Dynamo_CSS_Vocabulary {
             'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
             'outline-color', 'caret-color', 'accent-color', 'fill', 'stroke',
         ];
+        $string_keyword_props = ['font-family'];
+        $string_props         = ['content'];
+        $any_props = [
+            'background', 'border', 'outline', 'box-shadow', 'text-shadow',
+            'transform', 'transition', 'animation',
+            'grid-template-columns', 'grid-template-rows', 'grid-template-areas', 'grid-area',
+            'font',
+        ];
+
         $map = [];
         foreach ($color_props as $p) {
             $map[$p] = ['color'];
+        }
+        foreach ($string_keyword_props as $p) {
+            $map[$p] = ['string', 'keyword'];
+        }
+        foreach ($string_props as $p) {
+            $map[$p] = ['string'];
+        }
+        foreach ($any_props as $p) {
+            $map[$p] = ['any'];
         }
         return apply_filters('dynamo_binding_properties', $map);
     }

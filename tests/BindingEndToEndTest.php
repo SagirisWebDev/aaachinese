@@ -114,6 +114,80 @@ class BindingEndToEndTest extends TestCase {
         $this->assertSame('background-color', $map['dynamo_header_bg']['property']);
     }
 
+    public function test_text_binding_produces_variable_and_rule_layer_with_string_value(): void {
+        dynamo_config_customizer([
+            'id'       => 'heading_font',
+            'type'     => 'text',
+            'label'    => 'Heading font',
+            'section'  => 'typography',
+            'selector' => 'h1, h2, h3',
+            'property' => 'font-family',
+            'default'  => 'Georgia, serif',
+        ]);
+
+        $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+        $this->assertStringContainsString('--dynamo-heading_font: Georgia, serif;', $css);
+        $this->assertStringContainsString('h1, h2, h3 { font-family: var(--dynamo-heading_font); }', $css);
+    }
+
+    public function test_text_binding_through_adapter_uses_generic_text_control(): void {
+        dynamo_config_customizer([
+            'id'       => 'heading_font',
+            'type'     => 'text',
+            'label'    => 'Heading font',
+            'section'  => 'typography',
+            'selector' => 'h1, h2, h3',
+            'property' => 'font-family',
+        ]);
+
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(Dynamo_Binding_Registry::instance()))
+            ->apply($manager);
+
+        $this->assertSame('text', $manager->controls[0]->args['type']);
+        $this->assertSame('sanitize_text_field', $manager->settings['dynamo_heading_font']['sanitize_callback']);
+    }
+
+    public function test_textarea_binding_full_path_through_global_function(): void {
+        dynamo_config_customizer([
+            'id'       => 'before_text',
+            'type'     => 'textarea',
+            'label'    => 'Before-text',
+            'section'  => 'banner',
+            'selector' => '.banner::before',
+            'property' => 'content',
+            'default'  => '"Hello"',
+        ]);
+
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(Dynamo_Binding_Registry::instance()))
+            ->apply($manager);
+
+        $this->assertSame('textarea', $manager->controls[0]->args['type']);
+        $this->assertSame('sanitize_textarea_field', $manager->settings['dynamo_before_text']['sanitize_callback']);
+
+        $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+        $this->assertStringContainsString('--dynamo-before_text: "Hello";', $css);
+        $this->assertStringContainsString('.banner::before { content: var(--dynamo-before_text); }', $css);
+    }
+
+    public function test_text_binding_preview_metadata_has_no_unit_or_choices(): void {
+        dynamo_config_customizer([
+            'id'       => 'heading_font',
+            'type'     => 'text',
+            'label'    => 'Heading font',
+            'section'  => 'typography',
+            'selector' => 'h1, h2, h3',
+            'property' => 'font-family',
+        ]);
+        $entry = (new Dynamo_Binding_Preview_Bridge(Dynamo_Binding_Registry::instance()))
+            ->build_metadata()['dynamo_heading_font'];
+        $this->assertSame('h1, h2, h3', $entry['selector']);
+        $this->assertSame('font-family', $entry['property']);
+        $this->assertArrayNotHasKey('unit', $entry);
+        $this->assertArrayNotHasKey('choicesMap', $entry);
+    }
+
     public function test_css_generator_appends_binding_output_after_token_root_block(): void {
         dynamo_config_customizer([
             'id'       => 'header_bg',
