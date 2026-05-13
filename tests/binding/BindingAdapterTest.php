@@ -233,4 +233,64 @@ class BindingAdapterTest extends TestCase {
             $manager->controls[0]->args['input_attrs']
         );
     }
+
+    private function radioRegistry(array $overrides = []): Dynamo_Binding_Registry {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register(array_merge([
+            'id'       => 'sidebar_layout',
+            'type'     => 'radio',
+            'label'    => 'Sidebar layout',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => [
+                'left'  => ['label' => 'Left',  'value' => '300px 1fr'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+                'none'  => ['label' => 'None',  'value' => '1fr'],
+            ],
+        ], $overrides));
+        return $registry;
+    }
+
+    public function test_radio_binding_creates_control_with_type_radio(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->radioRegistry()))->apply($manager);
+        $this->assertSame('radio', $manager->controls[0]->args['type']);
+    }
+
+    public function test_radio_binding_flattens_choices_to_slug_to_label_for_wp_control(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->radioRegistry()))->apply($manager);
+        $this->assertSame(
+            ['left' => 'Left', 'right' => 'Right', 'none' => 'None'],
+            $manager->controls[0]->args['choices']
+        );
+    }
+
+    public function test_select_binding_creates_control_with_type_select_and_flattened_choices(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->radioRegistry(['type' => 'select'])))->apply($manager);
+        $this->assertSame('select', $manager->controls[0]->args['type']);
+        $this->assertSame(
+            ['left' => 'Left', 'right' => 'Right', 'none' => 'None'],
+            $manager->controls[0]->args['choices']
+        );
+    }
+
+    public function test_radio_setting_default_is_first_slug_when_omitted(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->radioRegistry()))->apply($manager);
+        $this->assertSame('left', $manager->settings['dynamo_sidebar_layout']['default']);
+    }
+
+    public function test_radio_sanitizer_through_adapter_is_callable_whitelist(): void {
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($this->radioRegistry()))->apply($manager);
+        $sanitize = $manager->settings['dynamo_sidebar_layout']['sanitize_callback'];
+        $this->assertIsCallable($sanitize);
+        $this->assertSame('right', $sanitize('right'));
+        $this->assertSame('left',  $sanitize('not-a-slug'));
+        // WP calls sanitizers with ($value, $setting); must not throw.
+        $this->assertSame('none', $sanitize('none', new stdClass()));
+    }
 }

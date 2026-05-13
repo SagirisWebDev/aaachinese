@@ -43,7 +43,22 @@ class Dynamo_Binding_CSS_Renderer {
         } else {
             $value = (string) $binding['default'];
         }
+        if (!empty($binding['choices']) && is_array($binding['choices'])) {
+            $value = self::resolve_choice($value, $binding);
+        }
         return self::apply_unit($value, $binding);
+    }
+
+    private static function resolve_choice(string $slug, array $binding): string {
+        $choices = $binding['choices'];
+        if (isset($choices[$slug]['value'])) {
+            return (string) $choices[$slug]['value'];
+        }
+        $default_slug = (string) $binding['default'];
+        if (isset($choices[$default_slug]['value'])) {
+            return (string) $choices[$default_slug]['value'];
+        }
+        return $slug;
     }
 
     private static function apply_unit(string $value, array $binding): string {

@@ -56,6 +56,40 @@ class Dynamo_Binding_Validator {
             }
         }
 
+        if (in_array($type, ['radio', 'select'], true)) {
+            $errors = [...$errors, ...$this->validate_choices($args)];
+        }
+
+        return $errors;
+    }
+
+    private function validate_choices(array $args): array {
+        $errors = [];
+
+        if (!isset($args['choices']) || !is_array($args['choices']) || empty($args['choices'])) {
+            $errors[] = "Type '{$args['type']}' requires non-empty 'choices' array";
+            return $errors;
+        }
+
+        foreach ($args['choices'] as $slug => $entry) {
+            if (!is_array($entry)) {
+                $errors[] = "choices['{$slug}'] must be ['label' => ..., 'value' => ...]; flat slug=>label form is not supported";
+                return $errors;
+            }
+            if (!isset($entry['label']) || '' === $entry['label']) {
+                $errors[] = "choices['{$slug}'] missing 'label' key";
+            }
+            if (!isset($entry['value']) || '' === $entry['value']) {
+                $errors[] = "choices['{$slug}'] missing 'value' key";
+            }
+        }
+
+        if (isset($args['default']) && '' !== $args['default']
+            && !array_key_exists($args['default'], $args['choices'])
+        ) {
+            $errors[] = "default '{$args['default']}' is not a key in choices";
+        }
+
         return $errors;
     }
 }

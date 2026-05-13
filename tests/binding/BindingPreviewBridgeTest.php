@@ -77,4 +77,37 @@ class BindingPreviewBridgeTest extends TestCase {
         $map = (new Dynamo_Binding_Preview_Bridge($registry))->build_metadata();
         $this->assertArrayNotHasKey('unit', $map['dynamo_header_opacity']);
     }
+
+    private function radioRegistry(): Dynamo_Binding_Registry {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register([
+            'id'       => 'sidebar_layout',
+            'type'     => 'radio',
+            'label'    => 'Sidebar layout',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => [
+                'left'  => ['label' => 'Left',  'value' => '300px 1fr'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+                'none'  => ['label' => 'None',  'value' => '1fr'],
+            ],
+        ]);
+        return $registry;
+    }
+
+    public function test_radio_binding_emits_choicesmap_keyed_by_slug(): void {
+        $map = (new Dynamo_Binding_Preview_Bridge($this->radioRegistry()))->build_metadata();
+        $this->assertSame(
+            ['left' => '300px 1fr', 'right' => '1fr 300px', 'none' => '1fr'],
+            $map['dynamo_sidebar_layout']['choicesMap']
+        );
+    }
+
+    public function test_radio_binding_metadata_includes_selector_and_property(): void {
+        $map = (new Dynamo_Binding_Preview_Bridge($this->radioRegistry()))->build_metadata();
+        $entry = $map['dynamo_sidebar_layout'];
+        $this->assertSame('.site-content', $entry['selector']);
+        $this->assertSame('grid-template-columns', $entry['property']);
+    }
 }

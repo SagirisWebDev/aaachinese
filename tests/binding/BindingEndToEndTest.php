@@ -295,4 +295,84 @@ class BindingEndToEndTest extends TestCase {
             $css
         );
     }
+
+    public function test_radio_binding_full_path_with_choices(): void {
+        dynamo_config_customizer([
+            'id'       => 'sidebar_layout',
+            'type'     => 'radio',
+            'label'    => 'Sidebar layout',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => [
+                'left'  => ['label' => 'Left',  'value' => '300px 1fr'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+                'none'  => ['label' => 'None',  'value' => '1fr'],
+            ],
+        ]);
+
+        // Default slug 'left' → resolved CSS value in the Variable layer.
+        $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+        $this->assertStringContainsString('--dynamo-sidebar_layout: 300px 1fr;', $css);
+        $this->assertStringContainsString(
+            '.site-content { grid-template-columns: var(--dynamo-sidebar_layout); }',
+            $css
+        );
+
+        // Saving a non-default slug resolves to its choice value.
+        set_theme_mod('dynamo_sidebar_layout', 'right');
+        $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+        $this->assertStringContainsString('--dynamo-sidebar_layout: 1fr 300px;', $css);
+
+        // Adapter wires a radio WP control with a flattened slug=>label choices.
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(Dynamo_Binding_Registry::instance()))
+            ->apply($manager);
+        $this->assertSame('radio', $manager->controls[0]->args['type']);
+        $this->assertSame(
+            ['left' => 'Left', 'right' => 'Right', 'none' => 'None'],
+            $manager->controls[0]->args['choices']
+        );
+
+        // Sanitize callback accepts WP's two-arg call and rejects bad slugs.
+        $sanitize = $manager->settings['dynamo_sidebar_layout']['sanitize_callback'];
+        $this->assertIsCallable($sanitize);
+        $this->assertSame('right', $sanitize('right', new stdClass()));
+        $this->assertSame('left',  $sanitize('not-a-slug', new stdClass()));
+
+        // Preview bridge emits choicesMap (slug → value) for the JS layer.
+        $entry = (new Dynamo_Binding_Preview_Bridge(Dynamo_Binding_Registry::instance()))
+            ->build_metadata()['dynamo_sidebar_layout'];
+        $this->assertSame(
+            ['left' => '300px 1fr', 'right' => '1fr 300px', 'none' => '1fr'],
+            $entry['choicesMap']
+        );
+    }
+
+    public function test_radio_without_choices_through_global_function_throws(): void {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/choices/i');
+        dynamo_config_customizer([
+            'id'       => 'broken_radio',
+            'type'     => 'radio',
+            'label'    => 'Broken',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+        ]);
+    }
+
+    public function test_select_with_flat_choices_through_global_function_throws(): void {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/choices/i');
+        dynamo_config_customizer([
+            'id'       => 'broken_select',
+            'type'     => 'select',
+            'label'    => 'Broken',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => ['left' => 'Left', 'right' => 'Right'],
+        ]);
+    }
 }

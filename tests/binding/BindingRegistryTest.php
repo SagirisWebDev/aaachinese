@@ -63,4 +63,67 @@ class BindingRegistryTest extends TestCase {
     public function test_all_returns_empty_array_initially(): void {
         $this->assertSame([], (new Dynamo_Binding_Registry())->all());
     }
+
+    private function validRadioArgs(array $overrides = []): array {
+        return array_merge([
+            'id'       => 'sidebar_layout',
+            'type'     => 'radio',
+            'label'    => 'Sidebar layout',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => [
+                'left'  => ['label' => 'Left',  'value' => '300px 1fr'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+                'none'  => ['label' => 'None',  'value' => '1fr'],
+            ],
+        ], $overrides);
+    }
+
+    public function test_radio_default_falls_back_to_first_choice_slug(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register($this->validRadioArgs());
+        $this->assertSame('left', $registry->all()['sidebar_layout']['default']);
+    }
+
+    public function test_select_default_falls_back_to_first_choice_slug(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register($this->validRadioArgs(['type' => 'select']));
+        $this->assertSame('left', $registry->all()['sidebar_layout']['default']);
+    }
+
+    public function test_radio_explicit_default_is_preserved(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register($this->validRadioArgs(['default' => 'right']));
+        $this->assertSame('right', $registry->all()['sidebar_layout']['default']);
+    }
+
+    public function test_radio_sanitize_callback_is_whitelist_closure(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register($this->validRadioArgs());
+        $sanitize = $registry->all()['sidebar_layout']['sanitize_callback'];
+        $this->assertIsCallable($sanitize);
+        $this->assertSame('left',  $sanitize('left'));
+        $this->assertSame('right', $sanitize('right'));
+        // Invalid slugs fall back to the default.
+        $this->assertSame('left', $sanitize('not-a-slug'));
+        $this->assertSame('left', $sanitize(''));
+        // Must accept WP's two-arg call (value, WP_Customize_Setting) without throwing.
+        $this->assertSame('right', $sanitize('right', new stdClass()));
+    }
+
+    public function test_select_sanitize_callback_is_whitelist_closure(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register($this->validRadioArgs(['type' => 'select', 'default' => 'none']));
+        $sanitize = $registry->all()['sidebar_layout']['sanitize_callback'];
+        $this->assertSame('none', $sanitize('rogue-slug'));
+        $this->assertSame('left', $sanitize('left'));
+    }
+
+    public function test_explicit_sanitize_callback_overrides_radio_default(): void {
+        $custom = static fn($v) => 'fixed';
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register($this->validRadioArgs(['sanitize_callback' => $custom]));
+        $this->assertSame($custom, $registry->all()['sidebar_layout']['sanitize_callback']);
+    }
 }

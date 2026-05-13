@@ -103,6 +103,54 @@ class BindingCSSRendererTest extends TestCase {
         $this->assertStringNotContainsString('2remrem', $css);
     }
 
+    private function radioRegistry(array $overrides = []): Dynamo_Binding_Registry {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register(array_merge([
+            'id'       => 'sidebar_layout',
+            'type'     => 'radio',
+            'label'    => 'Sidebar layout',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => [
+                'left'  => ['label' => 'Left',  'value' => '300px 1fr'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+                'none'  => ['label' => 'None',  'value' => '1fr'],
+            ],
+        ], $overrides));
+        return $registry;
+    }
+
+    public function test_radio_variable_layer_emits_resolved_css_value_not_slug(): void {
+        $css = (new Dynamo_Binding_CSS_Renderer($this->radioRegistry()))->render();
+        // Default is 'left' → '300px 1fr' must be in the variable, not the slug.
+        $this->assertStringContainsString('--dynamo-sidebar_layout: 300px 1fr;', $css);
+        $this->assertStringNotContainsString('--dynamo-sidebar_layout: left;', $css);
+    }
+
+    public function test_radio_saved_slug_resolves_to_its_choice_value(): void {
+        set_theme_mod('dynamo_sidebar_layout', 'right');
+        $css = (new Dynamo_Binding_CSS_Renderer($this->radioRegistry()))->render();
+        $this->assertStringContainsString('--dynamo-sidebar_layout: 1fr 300px;', $css);
+    }
+
+    public function test_radio_invalid_saved_slug_falls_back_to_default_choice_value(): void {
+        set_theme_mod('dynamo_sidebar_layout', 'not-a-slug');
+        $css = (new Dynamo_Binding_CSS_Renderer($this->radioRegistry()))->render();
+        // Default 'left' → '300px 1fr'.
+        $this->assertStringContainsString('--dynamo-sidebar_layout: 300px 1fr;', $css);
+    }
+
+    public function test_select_variable_layer_emits_resolved_css_value(): void {
+        $css = (new Dynamo_Binding_CSS_Renderer($this->radioRegistry(['type' => 'select'])))->render();
+        $this->assertStringContainsString('--dynamo-sidebar_layout: 300px 1fr;', $css);
+    }
+
+    public function test_radio_rule_layer_uses_var_reference_not_resolved_value(): void {
+        $css = (new Dynamo_Binding_CSS_Renderer($this->radioRegistry()))->render();
+        $this->assertStringContainsString('.site-content { grid-template-columns: var(--dynamo-sidebar_layout); }', $css);
+    }
+
     public function test_multiple_bindings_each_emit_both_layers(): void {
         $registry = new Dynamo_Binding_Registry();
         $registry->register([

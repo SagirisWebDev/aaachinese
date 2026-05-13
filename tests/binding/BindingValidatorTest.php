@@ -213,4 +213,96 @@ class BindingValidatorTest extends TestCase {
         $this->assertNotEmpty($errors);
         $this->assertStringContainsString('incompatible', strtolower(implode(' ', $errors)));
     }
+
+    private function validRadioArgs(array $overrides = []): array {
+        return array_merge([
+            'id'       => 'sidebar_layout',
+            'type'     => 'radio',
+            'label'    => 'Sidebar layout',
+            'section'  => 'layout',
+            'selector' => '.site-content',
+            'property' => 'grid-template-columns',
+            'choices'  => [
+                'left'  => ['label' => 'Left',  'value' => '300px 1fr'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+                'none'  => ['label' => 'None',  'value' => '1fr'],
+            ],
+        ], $overrides);
+    }
+
+    public function test_radio_with_three_column_choices_is_valid(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs());
+        $this->assertSame([], $errors);
+    }
+
+    public function test_select_with_three_column_choices_is_valid(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs(['type' => 'select']));
+        $this->assertSame([], $errors);
+    }
+
+    public function test_radio_without_choices_is_reported(): void {
+        $args = $this->validRadioArgs();
+        unset($args['choices']);
+        $errors = (new Dynamo_Binding_Validator())->validate($args);
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('choices', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_select_without_choices_is_reported(): void {
+        $args = $this->validRadioArgs(['type' => 'select']);
+        unset($args['choices']);
+        $errors = (new Dynamo_Binding_Validator())->validate($args);
+        $this->assertStringContainsString('choices', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_radio_with_empty_choices_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs(['choices' => []]));
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('choices', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_radio_with_flat_slug_to_label_choices_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs([
+            'choices' => ['left' => 'Left', 'right' => 'Right'],
+        ]));
+        $this->assertNotEmpty($errors);
+        $msg = strtolower(implode(' ', $errors));
+        $this->assertStringContainsString('choices', $msg);
+    }
+
+    public function test_radio_with_choice_missing_value_key_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs([
+            'choices' => [
+                'left'  => ['label' => 'Left'],
+                'right' => ['label' => 'Right', 'value' => '1fr 300px'],
+            ],
+        ]));
+        $this->assertStringContainsString('choices', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_radio_with_choice_missing_label_key_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs([
+            'choices' => [
+                'left' => ['value' => '300px 1fr'],
+            ],
+        ]));
+        $this->assertStringContainsString('choices', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_radio_with_color_property_is_incompatible(): void {
+        // radio → [keyword]; color → [color]; no intersection.
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs([
+            'property' => 'color',
+        ]));
+        $this->assertStringContainsString('incompatible', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_radio_default_not_in_choices_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validRadioArgs([
+            'default' => 'middle',
+        ]));
+        $this->assertNotEmpty($errors);
+        $msg = strtolower(implode(' ', $errors));
+        $this->assertStringContainsString('default', $msg);
+    }
 }

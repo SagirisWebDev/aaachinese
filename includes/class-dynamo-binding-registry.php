@@ -48,14 +48,23 @@ class Dynamo_Binding_Registry {
     }
 
     private function normalize(array $args): array {
-        $type = $args['type'];
+        $type        = $args['type'];
+        $has_choices = in_array($type, ['radio', 'select'], true) && !empty($args['choices']);
 
         if (!array_key_exists('default', $args)) {
-            $args['default'] = Dynamo_CSS_Vocabulary::default_value($type);
+            $args['default'] = $has_choices
+                ? (string) array_key_first($args['choices'])
+                : Dynamo_CSS_Vocabulary::default_value($type);
         }
 
         if (!array_key_exists('sanitize_callback', $args)) {
-            $args['sanitize_callback'] = Dynamo_CSS_Vocabulary::default_sanitizer($type);
+            if ($has_choices) {
+                $valid   = array_keys($args['choices']);
+                $default = $args['default'];
+                $args['sanitize_callback'] = static fn($value) => in_array($value, $valid, true) ? $value : $default;
+            } else {
+                $args['sanitize_callback'] = Dynamo_CSS_Vocabulary::default_sanitizer($type);
+            }
         }
 
         $args['setting_id'] = 'dynamo_' . $args['id'];
