@@ -9,29 +9,31 @@ class Dynamo_Binding_CSS_Renderer {
         $this->registry = $registry;
     }
 
+    public function variable_lines(): array {
+        $lines = [];
+        foreach ($this->registry->all() as $binding) {
+            $value = $this->resolve_value($binding);
+            $lines[] = "  --dynamo-{$binding['id']}: {$value};";
+        }
+        return $lines;
+    }
+
+    public function rule_lines(): array {
+        $lines = [];
+        foreach ($this->registry->all() as $binding) {
+            $lines[] = "{$binding['selector']} { {$binding['property']}: var(--dynamo-{$binding['id']}); }";
+        }
+        return $lines;
+    }
+
     public function render(): string {
-        $bindings = $this->registry->all();
-        if (empty($bindings)) {
+        $vars  = $this->variable_lines();
+        $rules = $this->rule_lines();
+        if (empty($vars) && empty($rules)) {
             return '';
         }
-
-        $variable_lines = [];
-        $rule_lines     = [];
-
-        foreach ($bindings as $binding) {
-            $id       = $binding['id'];
-            $value    = $this->resolve_value($binding);
-            $selector = $binding['selector'];
-            $property = $binding['property'];
-
-            $variable_lines[] = "  --dynamo-{$id}: {$value};";
-            $rule_lines[]     = "{$selector} { {$property}: var(--dynamo-{$id}); }";
-        }
-
-        $root = ":root {\n" . implode("\n", $variable_lines) . "\n}";
-        $rules = implode("\n", $rule_lines);
-
-        return $root . "\n" . $rules;
+        $root = ":root {\n" . implode("\n", $vars) . "\n}";
+        return $root . "\n" . implode("\n", $rules);
     }
 
     private function resolve_value(array $binding): string {

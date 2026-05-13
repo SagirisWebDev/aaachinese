@@ -17,37 +17,47 @@ class Dynamo_CSS_Generator {
             ['colors', 'typography', 'spacing', 'layout', 'borders', 'shadows', 'header', 'woocommerce']
         );
 
-        if (empty($modules)) {
-            return '';
-        }
-
-        $parts            = [];
+        $variable_chunks  = [];
         $woocommerce_seen = false;
-        foreach ($modules as $module) {
-            $declarations = $this->module_declarations($module);
-            $declarations = apply_filters("dynamo_css_{$module}", $declarations, $this->registry);
-            if ('' !== $declarations) {
-                $parts[] = $declarations;
-                if ($module === 'woocommerce') {
-                    $woocommerce_seen = true;
+        if (!empty($modules)) {
+            foreach ($modules as $module) {
+                $declarations = $this->module_declarations($module);
+                $declarations = apply_filters("dynamo_css_{$module}", $declarations, $this->registry);
+                if ('' !== $declarations) {
+                    $variable_chunks[] = $declarations;
+                    if ($module === 'woocommerce') {
+                        $woocommerce_seen = true;
+                    }
                 }
             }
         }
 
-        $bindings_css = '';
+        $rule_block = $woocommerce_seen ? $this->generate_woocommerce_rules() : '';
         if (class_exists('Dynamo_Binding_Registry') && class_exists('Dynamo_Binding_CSS_Renderer')) {
-            $bindings_css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+            $renderer      = new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance());
+            $binding_vars  = $renderer->variable_lines();
+            $binding_rules = $renderer->rule_lines();
+            if (!empty($binding_vars)) {
+                $variable_chunks[] = implode("\n", $binding_vars);
+            }
+            if (!empty($binding_rules)) {
+                $rule_block .= ($rule_block !== '' ? "\n\n" : '') . implode("\n", $binding_rules);
+            }
         }
 
-        $root  = empty($parts) ? '' : ":root {\n" . implode("\n", $parts) . "\n}";
-        $rules = $woocommerce_seen ? $this->generate_woocommerce_rules() : '';
-
-        if ($root === '' && $rules === '' && $bindings_css === '') {
+        if (empty($variable_chunks) && '' === $rule_block) {
             return '';
         }
 
-        $sections = array_filter([$root, $rules, $bindings_css], fn($s) => $s !== '');
-        return trim(implode("\n\n", $sections));
+        $root_block = empty($variable_chunks) ? '' : ":root {\n" . implode("\n", $variable_chunks) . "\n}";
+
+        if ('' === $rule_block) {
+            return $root_block;
+        }
+        if ('' === $root_block) {
+            return $rule_block;
+        }
+        return $root_block . "\n\n" . $rule_block;
     }
 
     public function generate_woocommerce_rules(): string {

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/CustomizerTest.php';
+require_once __DIR__ . '/../customizer/CustomizerTest.php';
 
 class BindingEndToEndTest extends TestCase {
 
@@ -210,7 +210,9 @@ class BindingEndToEndTest extends TestCase {
             ['min' => 0, 'max' => 6, 'step' => 0.25],
             $manager->controls[0]->args['input_attrs']
         );
-        $this->assertSame('floatval', $manager->settings['dynamo_header_pad']['sanitize_callback']);
+        $sanitizer = $manager->settings['dynamo_header_pad']['sanitize_callback'];
+        $this->assertIsCallable($sanitizer);
+        $this->assertSame(1.5, $sanitizer('1.5', new stdClass()));
 
         $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
         $this->assertStringContainsString('--dynamo-header_pad: 1.5rem;', $css);
@@ -269,7 +271,7 @@ class BindingEndToEndTest extends TestCase {
         ]);
     }
 
-    public function test_css_generator_appends_binding_output_after_token_root_block(): void {
+    public function test_css_generator_merges_binding_variables_into_single_root_block(): void {
         dynamo_config_customizer([
             'id'       => 'header_bg',
             'type'     => 'color',
@@ -286,5 +288,11 @@ class BindingEndToEndTest extends TestCase {
         $this->assertStringContainsString('--dynamo-colors-primary', $css);
         $this->assertStringContainsString('--dynamo-header_bg: #123abc;', $css);
         $this->assertStringContainsString('.site-header { background-color: var(--dynamo-header_bg); }', $css);
+
+        $this->assertSame(1, substr_count($css, ':root'), 'expected a single merged :root block');
+        $this->assertMatchesRegularExpression(
+            '/:root\s*\{[^}]*--dynamo-colors-primary[^}]*--dynamo-header_bg[^}]*\}/s',
+            $css
+        );
     }
 }

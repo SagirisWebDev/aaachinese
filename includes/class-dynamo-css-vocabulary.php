@@ -17,16 +17,16 @@ class Dynamo_CSS_Vocabulary {
         return in_array($unit, self::unit_list(), true);
     }
 
-    public static function default_sanitizer(string $type): ?string {
+    public static function default_sanitizer(string $type): callable|string|null {
         $map = [
             'color'    => 'sanitize_hex_color',
             'text'     => 'sanitize_text_field',
             'textarea' => 'sanitize_textarea_field',
-            'number'   => 'floatval',
-            'range'    => 'floatval',
+            'number'   => static fn($value) => floatval($value),
+            'range'    => static fn($value) => floatval($value),
             'url'      => 'esc_url_raw',
             'image'    => 'esc_url_raw',
-            'media'    => 'absint',
+            'media'    => static fn($value) => absint($value),
             'date'     => 'sanitize_text_field',
             'code'     => 'wp_kses_post',
         ];

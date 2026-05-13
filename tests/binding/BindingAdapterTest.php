@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/CustomizerTest.php';
+require_once __DIR__ . '/../customizer/CustomizerTest.php';
 
 class BindingAdapterTest extends TestCase {
 
@@ -210,7 +210,11 @@ class BindingAdapterTest extends TestCase {
     public function test_number_and_range_use_floatval_sanitizer_by_default(): void {
         $manager = new FakeCustomizeManager();
         (new Dynamo_Customizer_Binding_Adapter($this->numberRegistry()))->apply($manager);
-        $this->assertSame('floatval', $manager->settings['dynamo_header_pad']['sanitize_callback']);
+        $sanitizer = $manager->settings['dynamo_header_pad']['sanitize_callback'];
+        $this->assertIsCallable($sanitizer);
+        $this->assertSame(1.5, $sanitizer('1.5'));
+        // Must accept the second arg WP passes (the WP_Customize_Setting) without throwing.
+        $this->assertSame(2.0, $sanitizer('2', new stdClass()));
     }
 
     public function test_number_default_is_zero_when_omitted(): void {
