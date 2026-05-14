@@ -1,0 +1,7 @@
+{
+    "system-sans": {
+        "label": "System Sans",
+        "fallback": "sans-serif",
+        "faces": []
+    }
+}

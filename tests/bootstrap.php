@@ -117,6 +117,7 @@ function wp_kses_post(string $data): string {
 
 function update_option(string $option, mixed $value): bool {
     $GLOBALS['wp_options'][$option] = $value;
+    $GLOBALS['wp_update_option_calls'][] = $option;
     return true;
 }
 
@@ -182,6 +183,7 @@ class WP_Theme_JSON_Data {
 
 require_once DYNAMO_PATH . 'includes/class-dynamo-token-registry.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-font-manifest.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-font-renderer.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-options.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-breadcrumbs.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-css-generator.php';

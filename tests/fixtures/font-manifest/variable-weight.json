@@ -1,0 +1,9 @@
+{
+    "inter-variable": {
+        "label": "Inter Variable",
+        "fallback": "sans-serif",
+        "faces": [
+            { "file": "inter/Inter-Variable.woff2", "weight": "100 900", "style": "normal" }
+        ]
+    }
+}

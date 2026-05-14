@@ -7,6 +7,7 @@ define('DYNAMO_URL', trailingslashit(get_template_directory_uri()));
 
 require_once DYNAMO_PATH . '/includes/class-dynamo-token-registry.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-font-manifest.php';
+require_once DYNAMO_PATH . '/includes/class-dynamo-font-renderer.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-css-generator.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-css-cache.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-css-output.php';
@@ -16,15 +17,17 @@ require_once DYNAMO_PATH . '/includes/class-dynamo-options.php';
 require_once DYNAMO_PATH . '/includes/class-dynamo-breadcrumbs.php';
 
 add_action('after_setup_theme', function(): void {
-    $registry     = new Dynamo_Token_Registry();
-    $fonts        = new Dynamo_Font_Manifest(DYNAMO_PATH . '/fonts/fonts.json');
-    $cache        = new Dynamo_CSS_Cache();
-    $generator    = new Dynamo_CSS_Generator($registry, $fonts);
-    $output       = new Dynamo_CSS_Output($generator, $cache);
-    $customizer   = new Dynamo_Customizer($registry, $cache, $generator, $fonts);
-    $theme_json   = new Dynamo_Theme_JSON_Sync($registry);
-    $options      = new Dynamo_Options();
+    $registry      = new Dynamo_Token_Registry();
+    $fonts         = new Dynamo_Font_Manifest(DYNAMO_PATH . '/fonts/fonts.json');
+    $font_renderer = new Dynamo_Font_Renderer($fonts, DYNAMO_URL . 'fonts/');
+    $cache         = new Dynamo_CSS_Cache();
+    $generator     = new Dynamo_CSS_Generator($registry, $fonts);
+    $output        = new Dynamo_CSS_Output($generator, $cache);
+    $customizer    = new Dynamo_Customizer($registry, $cache, $generator, $fonts);
+    $theme_json    = new Dynamo_Theme_JSON_Sync($registry);
+    $options       = new Dynamo_Options();
     $output->init();
+    $font_renderer->init();
     $customizer->init();
     $theme_json->init();
     $options->init();

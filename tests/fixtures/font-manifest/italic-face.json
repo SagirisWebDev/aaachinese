@@ -1,0 +1,9 @@
+{
+    "inter": {
+        "label": "Inter",
+        "fallback": "sans-serif",
+        "faces": [
+            { "file": "inter/Inter-Italic.woff2", "weight": 400, "style": "italic" }
+        ]
+    }
+}
