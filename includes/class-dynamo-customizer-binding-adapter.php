@@ -56,6 +56,9 @@ class Dynamo_Customizer_Binding_Adapter {
             if (isset($binding['mime_type'])) {
                 $control_args['mime_type'] = $binding['mime_type'];
             }
+            if (isset($binding['code_type'])) {
+                $control_args['code_type'] = $binding['code_type'];
+            }
 
             $control_class = Dynamo_CSS_Vocabulary::control_class($binding['type']);
             if (null !== $control_class) {

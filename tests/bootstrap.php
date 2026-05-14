@@ -223,6 +223,16 @@ class WP_Customize_Control {
 
 class WP_Customize_Image_Control extends WP_Customize_Color_Control {}
 class WP_Customize_Media_Control extends WP_Customize_Color_Control {}
+class WP_Customize_Date_Time_Control extends WP_Customize_Color_Control {}
+class WP_Customize_Code_Editor_Control extends WP_Customize_Color_Control {
+    public string $code_type = '';
+    public function __construct(object $manager, string $id, array $args) {
+        parent::__construct($manager, $id, $args);
+        if (isset($args['code_type'])) {
+            $this->code_type = (string) $args['code_type'];
+        }
+    }
+}
 
 function esc_url_raw(string $url): string {
     return $url;

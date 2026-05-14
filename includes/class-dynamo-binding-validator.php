@@ -60,6 +60,12 @@ class Dynamo_Binding_Validator {
             $errors = [...$errors, ...$this->validate_choices($args)];
         }
 
+        if ('code' === $type) {
+            if (!isset($args['code_type']) || '' === $args['code_type']) {
+                $errors[] = "Type 'code' requires a non-empty 'code_type' (e.g. 'css', 'javascript', 'html', 'json').";
+            }
+        }
+
         if (null !== $property) {
             $errors = [...$errors, ...$this->validate_requirements($args, $property)];
         }

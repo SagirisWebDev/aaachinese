@@ -476,6 +476,65 @@ class BindingEndToEndTest extends TestCase {
         $this->assertStringContainsString('.hero { background-image: var(--dynamo-hero_bg); }', $css);
     }
 
+    public function test_date_binding_full_path(): void {
+        dynamo_config_customizer([
+            'id'       => 'launch_date',
+            'type'     => 'date',
+            'label'    => 'Launch date',
+            'section'  => 'banner',
+            'selector' => '.banner::before',
+            'property' => 'content',
+            'default'  => '"2026-01-01"',
+        ]);
+
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(Dynamo_Binding_Registry::instance()))
+            ->apply($manager);
+        $this->assertInstanceOf(WP_Customize_Date_Time_Control::class, $manager->controls[0]);
+        $this->assertSame('sanitize_text_field', $manager->settings['dynamo_launch_date']['sanitize_callback']);
+
+        $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+        $this->assertStringContainsString('--dynamo-launch_date: "2026-01-01";', $css);
+        $this->assertStringContainsString('.banner::before { content: var(--dynamo-launch_date); }', $css);
+    }
+
+    public function test_code_binding_full_path_with_code_type_forwarded(): void {
+        dynamo_config_customizer([
+            'id'        => 'btn_shadow',
+            'type'      => 'code',
+            'code_type' => 'css',
+            'label'     => 'Custom button shadow',
+            'section'   => 'advanced',
+            'selector'  => '.btn',
+            'property'  => 'box-shadow',
+            'default'   => '0 2px 4px rgba(0,0,0,0.25)',
+        ]);
+
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter(Dynamo_Binding_Registry::instance()))
+            ->apply($manager);
+        $this->assertInstanceOf(WP_Customize_Code_Editor_Control::class, $manager->controls[0]);
+        $this->assertSame('css', $manager->controls[0]->code_type);
+        $this->assertSame('wp_kses_post', $manager->settings['dynamo_btn_shadow']['sanitize_callback']);
+
+        $css = (new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance()))->render();
+        $this->assertStringContainsString('--dynamo-btn_shadow: 0 2px 4px rgba(0,0,0,0.25);', $css);
+        $this->assertStringContainsString('.btn { box-shadow: var(--dynamo-btn_shadow); }', $css);
+    }
+
+    public function test_code_binding_without_code_type_through_global_throws(): void {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/code_type/i');
+        dynamo_config_customizer([
+            'id'       => 'broken_code',
+            'type'     => 'code',
+            'label'    => 'Broken',
+            'section'  => 'advanced',
+            'selector' => '.btn',
+            'property' => 'box-shadow',
+        ]);
+    }
+
     public function test_full_requires_path_emits_prereq_rule_and_var_rule(): void {
         dynamo_config_customizer([
             'id'       => 'sidebar_layout',

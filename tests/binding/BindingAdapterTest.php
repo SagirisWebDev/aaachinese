@@ -372,6 +372,75 @@ class BindingAdapterTest extends TestCase {
         $this->assertArrayNotHasKey('mime_type', $manager->controls[0]->args);
     }
 
+    public function test_date_binding_uses_date_time_control_class(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register([
+            'id'       => 'launch_at',
+            'type'     => 'date',
+            'label'    => 'Launch at',
+            'section'  => 'banner',
+            'selector' => '.banner::before',
+            'property' => 'content',
+        ]);
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($registry))->apply($manager);
+        $this->assertInstanceOf(WP_Customize_Date_Time_Control::class, $manager->controls[0]);
+        $this->assertSame('sanitize_text_field', $manager->settings['dynamo_launch_at']['sanitize_callback']);
+        $this->assertSame('', $manager->settings['dynamo_launch_at']['default']);
+    }
+
+    public function test_code_binding_uses_code_editor_control_class(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register([
+            'id'        => 'custom_btn_css',
+            'type'      => 'code',
+            'code_type' => 'css',
+            'label'     => 'Custom button CSS',
+            'section'   => 'advanced',
+            'selector'  => '.btn',
+            'property'  => 'box-shadow',
+        ]);
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($registry))->apply($manager);
+        $this->assertInstanceOf(WP_Customize_Code_Editor_Control::class, $manager->controls[0]);
+        $this->assertSame('wp_kses_post', $manager->settings['dynamo_custom_btn_css']['sanitize_callback']);
+        $this->assertSame('', $manager->settings['dynamo_custom_btn_css']['default']);
+    }
+
+    public function test_code_binding_forwards_code_type_to_control_property(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register([
+            'id'        => 'custom_btn_css',
+            'type'      => 'code',
+            'code_type' => 'css',
+            'label'     => 'Custom button CSS',
+            'section'   => 'advanced',
+            'selector'  => '.btn',
+            'property'  => 'box-shadow',
+        ]);
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($registry))->apply($manager);
+        $control = $manager->controls[0];
+        $this->assertSame('css', $control->code_type);
+        $this->assertSame('css', $control->args['code_type']);
+    }
+
+    public function test_code_binding_forwards_alternate_code_type(): void {
+        $registry = new Dynamo_Binding_Registry();
+        $registry->register([
+            'id'        => 'custom_js',
+            'type'      => 'code',
+            'code_type' => 'javascript',
+            'label'     => 'Custom JS',
+            'section'   => 'advanced',
+            'selector'  => '.btn',
+            'property'  => 'box-shadow',
+        ]);
+        $manager = new FakeCustomizeManager();
+        (new Dynamo_Customizer_Binding_Adapter($registry))->apply($manager);
+        $this->assertSame('javascript', $manager->controls[0]->code_type);
+    }
+
     public function test_radio_sanitizer_through_adapter_is_callable_whitelist(): void {
         $manager = new FakeCustomizeManager();
         (new Dynamo_Customizer_Binding_Adapter($this->radioRegistry()))->apply($manager);

@@ -424,6 +424,76 @@ class BindingValidatorTest extends TestCase {
         $this->assertStringContainsString('incompatible', strtolower(implode(' ', $errors)));
     }
 
+    public function test_date_binding_with_string_property_is_valid(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate([
+            'id'       => 'before_text_date',
+            'type'     => 'date',
+            'label'    => 'Date label',
+            'section'  => 'banner',
+            'selector' => '.banner::before',
+            'property' => 'content',
+        ]);
+        $this->assertSame([], $errors);
+    }
+
+    public function test_date_binding_with_color_property_is_incompatible(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate([
+            'id'       => 'header_date',
+            'type'     => 'date',
+            'label'    => 'Header date',
+            'section'  => 'header',
+            'selector' => '.site-header',
+            'property' => 'background-color',
+        ]);
+        $this->assertStringContainsString('incompatible', strtolower(implode(' ', $errors)));
+    }
+
+    public function test_code_binding_with_code_type_css_is_valid(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate([
+            'id'        => 'custom_btn_css',
+            'type'      => 'code',
+            'code_type' => 'css',
+            'label'     => 'Custom button CSS',
+            'section'   => 'advanced',
+            'selector'  => '.btn',
+            'property'  => 'box-shadow',
+        ]);
+        $this->assertSame([], $errors);
+    }
+
+    public function test_code_binding_without_code_type_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate([
+            'id'       => 'broken_code',
+            'type'     => 'code',
+            'label'    => 'Broken',
+            'section'  => 'advanced',
+            'selector' => '.btn',
+            'property' => 'box-shadow',
+        ]);
+        $msg = strtolower(implode(' ', $errors));
+        $this->assertStringContainsString('code_type', $msg);
+    }
+
+    public function test_code_binding_with_empty_code_type_is_reported(): void {
+        $errors = (new Dynamo_Binding_Validator())->validate([
+            'id'        => 'broken_code',
+            'type'      => 'code',
+            'code_type' => '',
+            'label'     => 'Broken',
+            'section'  => 'advanced',
+            'selector' => '.btn',
+            'property' => 'box-shadow',
+        ]);
+        $msg = strtolower(implode(' ', $errors));
+        $this->assertStringContainsString('code_type', $msg);
+    }
+
+    public function test_code_type_is_only_required_for_code_type(): void {
+        // Other types must not have code_type enforced.
+        $errors = (new Dynamo_Binding_Validator())->validate($this->validColorArgs());
+        $this->assertSame([], $errors);
+    }
+
     public function test_parent_requirement_property_align_self_is_reported_as_unsupported(): void {
         $args = $this->validRadioArgs([
             'id'       => 'card_align',
