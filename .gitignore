@@ -5,3 +5,4 @@ issues/
 .claude/
 phpunit.xml
 .agents/
+docs/
