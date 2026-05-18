@@ -26,7 +26,7 @@ class SpacingModuleTest extends TestCase {
         if (!empty($tokens)) {
             add_filter('dynamo_token_defaults', fn() => $tokens);
         }
-        return new Dynamo_CSS_Generator($registry);
+        return new Dynamo_CSS_Generator($registry, new Dynamo_Font_Manifest(__DIR__ . '/fixtures/font-manifest/valid.json'));
     }
 
     public function test_all_spacing_tokens_have_defaults(): void {
@@ -54,7 +54,7 @@ class SpacingModuleTest extends TestCase {
     public function test_generate_with_empty_token_set_returns_empty_string(): void {
         add_filter('dynamo_token_defaults', fn() => []);
         $registry  = new Dynamo_Token_Registry();
-        $generator = new Dynamo_CSS_Generator($registry);
+        $generator = new Dynamo_CSS_Generator($registry, new Dynamo_Font_Manifest(__DIR__ . '/fixtures/font-manifest/valid.json'));
         $css = $generator->generate();
         $this->assertSame('', $css);
     }

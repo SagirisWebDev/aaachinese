@@ -16,6 +16,10 @@ class WooCommerceTokensTest extends TestCase {
         $GLOBALS['wp_theme_mods'] = [];
     }
 
+    private function makeGenerator(): Dynamo_CSS_Generator {
+        return new Dynamo_CSS_Generator(new Dynamo_Token_Registry(), new Dynamo_Font_Manifest(__DIR__ . '/fixtures/font-manifest/valid.json'));
+    }
+
     // --- Token Registry ---
 
     public function test_registry_contains_all_three_woocommerce_tokens(): void {
@@ -37,14 +41,14 @@ class WooCommerceTokensTest extends TestCase {
     // --- CSS Generator: :root custom properties ---
 
     public function test_generator_emits_each_woocommerce_token_as_custom_property(): void {
-        $css = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate();
+        $css = $this->makeGenerator()->generate();
         foreach ($this->woocommerce_tokens as $token) {
             $this->assertStringContainsString("--dynamo-{$token}", $css, "Missing --dynamo-{$token}");
         }
     }
 
     public function test_generator_emits_woocommerce_selector_rules_referencing_tokens(): void {
-        $css = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate();
+        $css = $this->makeGenerator()->generate();
 
         $this->assertStringContainsString('.woocommerce', $css, 'Expected .woocommerce selector rules in output');
         $this->assertStringContainsString('var(--dynamo-woocommerce-sale-badge-bg)', $css);
@@ -53,7 +57,7 @@ class WooCommerceTokensTest extends TestCase {
     }
 
     public function test_add_to_cart_button_rule_maps_to_woocommerce_tokens(): void {
-        $rules = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate_woocommerce_rules();
+        $rules = $this->makeGenerator()->generate_woocommerce_rules();
         $this->assertMatchesRegularExpression(
             '/add_to_cart_button[^{]*\{[^}]*var\(--dynamo-woocommerce-add-to-cart-bg\)[^}]*var\(--dynamo-woocommerce-add-to-cart-color\)/s',
             $rules,
@@ -62,7 +66,7 @@ class WooCommerceTokensTest extends TestCase {
     }
 
     public function test_single_product_price_rule_maps_to_single_price_token(): void {
-        $rules = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate_woocommerce_rules();
+        $rules = $this->makeGenerator()->generate_woocommerce_rules();
         $this->assertMatchesRegularExpression(
             '/div\.product[^{]*\.price[^{]*\{[^}]*var\(--dynamo-woocommerce-single-price-color\)/s',
             $rules,
@@ -71,7 +75,7 @@ class WooCommerceTokensTest extends TestCase {
     }
 
     public function test_product_card_rule_maps_to_colors_background_token(): void {
-        $rules = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate_woocommerce_rules();
+        $rules = $this->makeGenerator()->generate_woocommerce_rules();
         $this->assertMatchesRegularExpression(
             '/li\.product[^{]*\{[^}]*var\(--dynamo-colors-background\)/s',
             $rules,
@@ -80,14 +84,14 @@ class WooCommerceTokensTest extends TestCase {
     }
 
     public function test_product_card_rule_uses_borders_and_shadow_tokens(): void {
-        $rules = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate_woocommerce_rules();
+        $rules = $this->makeGenerator()->generate_woocommerce_rules();
         $this->assertStringContainsString('var(--dynamo-borders-radius)', $rules);
         $this->assertStringContainsString('var(--dynamo-borders-color)', $rules);
         $this->assertStringContainsString('var(--dynamo-shadows-md)', $rules);
     }
 
     public function test_generator_woocommerce_rules_are_appended_after_root_block(): void {
-        $css = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate();
+        $css = $this->makeGenerator()->generate();
         $root_close = strrpos($css, '}');
         $first_woo  = strpos($css, '.woocommerce');
         $this->assertNotFalse($first_woo, 'Expected .woocommerce rules');
@@ -98,7 +102,7 @@ class WooCommerceTokensTest extends TestCase {
 
     public function test_saved_theme_mod_overrides_woocommerce_token_in_root(): void {
         $GLOBALS['wp_theme_mods']['dynamo_woocommerce_sale_badge_bg'] = '#ff00ff';
-        $css = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate();
+        $css = $this->makeGenerator()->generate();
         $this->assertStringContainsString('--dynamo-woocommerce-sale-badge-bg: #ff00ff;', $css);
     }
 

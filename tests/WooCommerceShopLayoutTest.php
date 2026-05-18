@@ -10,6 +10,10 @@ class WooCommerceShopLayoutTest extends TestCase {
         $GLOBALS['wp_theme_mods'] = [];
     }
 
+    private function makeGenerator(): Dynamo_CSS_Generator {
+        return new Dynamo_CSS_Generator(new Dynamo_Token_Registry(), new Dynamo_Font_Manifest(__DIR__ . '/fixtures/font-manifest/valid.json'));
+    }
+
     // --- Tokens / defaults ---
 
     public function test_registry_contains_shop_columns_default_three(): void {
@@ -23,13 +27,13 @@ class WooCommerceShopLayoutTest extends TestCase {
     }
 
     public function test_generator_emits_shop_columns_custom_property(): void {
-        $css = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate();
+        $css = $this->makeGenerator()->generate();
         $this->assertStringContainsString('--dynamo-woocommerce-shop-columns: 3;', $css);
     }
 
     public function test_saved_theme_mod_overrides_shop_columns(): void {
         $GLOBALS['wp_theme_mods']['dynamo_woocommerce_shop_columns'] = '5';
-        $css = (new Dynamo_CSS_Generator(new Dynamo_Token_Registry()))->generate();
+        $css = $this->makeGenerator()->generate();
         $this->assertStringContainsString('--dynamo-woocommerce-shop-columns: 5;', $css);
     }
 
