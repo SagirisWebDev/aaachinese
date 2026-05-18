@@ -282,7 +282,7 @@ class BindingEndToEndTest extends TestCase {
             'default'  => '#123abc',
         ]);
 
-        $generator = new Dynamo_CSS_Generator(new Dynamo_Token_Registry());
+        $generator = new Dynamo_CSS_Generator(new Dynamo_Token_Registry(), new Dynamo_Font_Manifest(__DIR__ . '/../fixtures/font-manifest/valid.json'));
         $css = $generator->generate();
 
         $this->assertStringContainsString('--dynamo-colors-primary', $css);

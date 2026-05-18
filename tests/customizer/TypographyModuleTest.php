@@ -12,7 +12,7 @@ class TypographyModuleTest extends TestCase {
     }
 
     private function fixtureManifest(): Dynamo_Font_Manifest {
-        return new Dynamo_Font_Manifest(__DIR__ . '/fixtures/font-manifest/valid.json');
+        return new Dynamo_Font_Manifest(__DIR__ . '/../fixtures/font-manifest/valid.json');
     }
 
     private function makeGenerator(array $tokens = []): Dynamo_CSS_Generator {

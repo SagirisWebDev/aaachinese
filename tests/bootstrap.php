@@ -254,10 +254,6 @@ function sanitize_textarea_field(string $text): string {
     return $text;
 }
 
-function wp_kses_post(string $data): string {
-    return $data;
-}
-
 function wp_localize_script(string $handle, string $name, array $data): void {
     $GLOBALS['wp_localized'][$handle][$name] = $data;
 }
