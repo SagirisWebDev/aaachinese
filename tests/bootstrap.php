@@ -166,6 +166,10 @@ function wp_kses_post(string $data): string {
     return $data;
 }
 
+function set_theme_mod(string $name, mixed $value): void {
+    $GLOBALS['wp_theme_mods'][$name] = $value;
+}
+
 
 function update_option(string $option, mixed $value): bool {
     $GLOBALS['wp_options'][$option] = $value;
@@ -217,6 +221,43 @@ class WP_Customize_Control {
     }
 }
 
+class WP_Customize_Image_Control extends WP_Customize_Color_Control {}
+class WP_Customize_Media_Control extends WP_Customize_Color_Control {}
+class WP_Customize_Date_Time_Control extends WP_Customize_Color_Control {}
+class WP_Customize_Code_Editor_Control extends WP_Customize_Color_Control {
+    public string $code_type = '';
+    public function __construct(object $manager, string $id, array $args) {
+        parent::__construct($manager, $id, $args);
+        if (isset($args['code_type'])) {
+            $this->code_type = (string) $args['code_type'];
+        }
+    }
+}
+
+function esc_url_raw(string $url): string {
+    return $url;
+}
+
+function absint(mixed $maybe): int {
+    return abs((int) $maybe);
+}
+
+function wp_get_attachment_url(int $attachment_id): string|false {
+    return $GLOBALS['wp_attachment_urls'][$attachment_id] ?? false;
+}
+
+function sanitize_text_field(string $text): string {
+    return trim($text);
+}
+
+function sanitize_textarea_field(string $text): string {
+    return $text;
+}
+
+function wp_localize_script(string $handle, string $name, array $data): void {
+    $GLOBALS['wp_localized'][$handle][$name] = $data;
+}
+
 class WP_Theme_JSON_Data {
     private array $data;
 
@@ -243,6 +284,13 @@ require_once DYNAMO_PATH . 'includes/class-dynamo-css-cache.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-customizer.php';
 require_once DYNAMO_PATH . 'includes/class-dynamo-theme-json-sync.php';
 require_once DYNAMO_PATH . 'includes/woocommerce/class-dynamo-woocommerce.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-css-vocabulary.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-binding-validator.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-binding-registry.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-binding-css-renderer.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-customizer-binding-adapter.php';
+require_once DYNAMO_PATH . 'includes/class-dynamo-binding-preview-bridge.php';
+require_once DYNAMO_PATH . 'includes/dynamo-binding-api.php';
 require_once __DIR__ . '/MakesCustomizer.php';
 require_once __DIR__ . '/FakeCustomizeManager.php';
 
