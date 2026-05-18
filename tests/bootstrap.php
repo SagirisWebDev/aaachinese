@@ -194,7 +194,9 @@ function esc_html(string $text): string {
 }
 
 function esc_attr(string $text): string {
-    return $text;
+    // Mirror WordPress core esc_attr(): encode HTML special chars with quote
+    // styles enabled so attribute values are not parseable as live markup.
+    return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
 function esc_attr__(string $text, string $domain = 'default'): string {
