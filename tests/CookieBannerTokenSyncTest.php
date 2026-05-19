@@ -40,28 +40,32 @@ class CookieBannerTokenSyncTest extends TestCase
 
     protected function setUp(): void
     {
-        $GLOBALS['wp_filter']          = [];
-        $GLOBALS['wp_theme_supports']  = [];
-        $GLOBALS['wp_removed_actions'] = [];
-        $GLOBALS['wp_doing_it_wrong']  = [];
+        $GLOBALS['wp_filter']              = [];
+        $GLOBALS['wp_theme_supports']      = [];
+        $GLOBALS['wp_removed_actions']     = [];
+        $GLOBALS['wp_doing_it_wrong']      = [];
+        $GLOBALS['wp_options']             = [];
+        $GLOBALS['wp_update_option_calls'] = [];
+        $GLOBALS['wpdb_update_calls']      = [];
 
         $this->loadCookieFiles();
     }
 
     protected function tearDown(): void
     {
-        // Remove any dynamo_cookie_banner_tokens filters added during a test
-        // so they do not leak into subsequent test methods.
+        // Remove any filters added during a test so they do not leak into
+        // subsequent test methods.
         unset($GLOBALS['wp_filter']['dynamo_cookie_banner_tokens']);
         unset($GLOBALS['wp_filter']['dynamo_token_defaults']);
+        unset($GLOBALS['wp_filter']['dynamo_complianz_colorpalette']);
     }
 
     // -----------------------------------------------------------------------
-    // AC1 — Complianz driver registers the correct hook
+    // AC1 — Complianz driver registers customize_save_after (NOT cmplz_banner_css)
     // -----------------------------------------------------------------------
 
     /** @test */
-    public function complianz_driver_register_palette_sync_hooks_adds_cmplz_banner_css_action(): void
+    public function complianz_driver_register_palette_sync_hooks_adds_customize_save_after_action(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
@@ -69,32 +73,32 @@ class CookieBannerTokenSyncTest extends TestCase
         $driver->register_palette_sync_hooks();
 
         $this->assertArrayHasKey(
-            'cmplz_banner_css',
+            'customize_save_after',
             $GLOBALS['wp_filter'],
-            'Complianz driver must register a callback on the cmplz_banner_css hook.'
+            'Complianz driver must register a callback on the customize_save_after hook.'
         );
 
-        $registeredCallbacks = array_merge(...array_values($GLOBALS['wp_filter']['cmplz_banner_css']));
+        $registeredCallbacks = array_merge(...array_values($GLOBALS['wp_filter']['customize_save_after']));
         $this->assertNotEmpty(
             $registeredCallbacks,
-            'At least one callback must be registered on cmplz_banner_css.'
+            'At least one callback must be registered on customize_save_after.'
         );
     }
 
     /** @test */
-    public function complianz_driver_does_not_register_wrong_hook(): void
+    public function complianz_driver_does_not_register_cmplz_banner_css_hook(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
         $driver = new Dynamo_Cookie_Driver_Complianz();
         $driver->register_palette_sync_hooks();
 
-        // The stub registers cmplz_after_consent — that must be gone.
-        // The real hook is cmplz_banner_css.
+        // cmplz_banner_css is a do_action (not apply_filters) and was the
+        // root cause of the broken sync. The new driver must not use it.
         $this->assertArrayNotHasKey(
-            'cmplz_after_consent',
+            'cmplz_banner_css',
             $GLOBALS['wp_filter'],
-            'Complianz driver must NOT register on cmplz_after_consent (old stub hook).'
+            'Complianz driver must NOT register on cmplz_banner_css (it is a do_action, not a filter).'
         );
     }
 
@@ -140,133 +144,158 @@ class CookieBannerTokenSyncTest extends TestCase
     }
 
     // -----------------------------------------------------------------------
-    // AC2 — Complianz callback injects all 5 CSS custom properties
+    // AC2 — build_palette() returns correct colorpalette arrays per field
     // -----------------------------------------------------------------------
 
     /** @test */
-    public function complianz_callback_appends_cookie_primary_from_token_registry(): void
+    public function complianz_build_palette_colorpalette_background_maps_color_and_border(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
         $registry = new Dynamo_Token_Registry();
-        $expected  = $registry->get('colors-primary'); // '#3b82f6'
+        $palette  = $driver->build_palette($registry);
 
-        $this->assertStringContainsString(
-            '--cookie-primary',
-            $css,
-            'Complianz callback must inject the --cookie-primary custom property.'
+        $this->assertArrayHasKey('colorpalette_background', $palette);
+        $this->assertSame(
+            $registry->get('colors-background'),
+            $palette['colorpalette_background']['color'] ?? null,
+            "colorpalette_background.color must map to 'colors-background'."
         );
-        $this->assertStringContainsString(
-            $expected,
-            $css,
-            "--cookie-primary must equal the Token Registry value for 'colors-primary' ({$expected})."
+        $this->assertSame(
+            $registry->get('borders-color'),
+            $palette['colorpalette_background']['border'] ?? null,
+            "colorpalette_background.border must map to 'borders-color'."
         );
     }
 
     /** @test */
-    public function complianz_callback_appends_cookie_background_from_token_registry(): void
+    public function complianz_build_palette_colorpalette_text_maps_color_and_hyperlink(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
         $registry = new Dynamo_Token_Registry();
-        $expected  = $registry->get('colors-background'); // '#ffffff'
+        $palette  = $driver->build_palette($registry);
 
-        $this->assertStringContainsString('--cookie-background', $css);
-        $this->assertStringContainsString(
-            $expected,
-            $css,
-            "--cookie-background must equal the Token Registry value for 'colors-background' ({$expected})."
+        $this->assertArrayHasKey('colorpalette_text', $palette);
+        $this->assertSame(
+            $registry->get('colors-text'),
+            $palette['colorpalette_text']['color'] ?? null,
+            "colorpalette_text.color must map to 'colors-text'."
+        );
+        $this->assertSame(
+            $registry->get('colors-link'),
+            $palette['colorpalette_text']['hyperlink'] ?? null,
+            "colorpalette_text.hyperlink must map to 'colors-link'."
         );
     }
 
     /** @test */
-    public function complianz_callback_appends_cookie_text_from_token_registry(): void
+    public function complianz_build_palette_colorpalette_toggles_maps_background_bullet_inactive(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
         $registry = new Dynamo_Token_Registry();
-        $expected  = $registry->get('colors-text'); // '#111827'
+        $palette  = $driver->build_palette($registry);
 
-        $this->assertStringContainsString('--cookie-text', $css);
-        $this->assertStringContainsString(
-            $expected,
-            $css,
-            "--cookie-text must equal the Token Registry value for 'colors-text' ({$expected})."
+        $this->assertArrayHasKey('colorpalette_toggles', $palette);
+        $this->assertSame(
+            $registry->get('colors-primary'),
+            $palette['colorpalette_toggles']['background'] ?? null,
+            "colorpalette_toggles.background must map to 'colors-primary'."
+        );
+        $this->assertSame(
+            $registry->get('colors-background'),
+            $palette['colorpalette_toggles']['bullet'] ?? null,
+            "colorpalette_toggles.bullet must map to 'colors-background'."
+        );
+        $this->assertSame(
+            $registry->get('colors-accent'),
+            $palette['colorpalette_toggles']['inactive'] ?? null,
+            "colorpalette_toggles.inactive must map to 'colors-accent'."
         );
     }
 
     /** @test */
-    public function complianz_callback_appends_cookie_link_from_token_registry(): void
+    public function complianz_build_palette_colorpalette_button_accept_maps_background_border_text(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
         $registry = new Dynamo_Token_Registry();
-        $expected  = $registry->get('colors-link'); // '#2563eb'
+        $palette  = $driver->build_palette($registry);
 
-        $this->assertStringContainsString('--cookie-link', $css);
-        $this->assertStringContainsString(
-            $expected,
-            $css,
-            "--cookie-link must equal the Token Registry value for 'colors-link' ({$expected})."
+        $this->assertArrayHasKey('colorpalette_button_accept', $palette);
+        $this->assertSame(
+            $registry->get('colors-primary'),
+            $palette['colorpalette_button_accept']['background'] ?? null,
+            "colorpalette_button_accept.background must map to 'colors-primary'."
+        );
+        $this->assertSame(
+            $registry->get('colors-primary'),
+            $palette['colorpalette_button_accept']['border'] ?? null,
+            "colorpalette_button_accept.border must map to 'colors-primary'."
+        );
+        $this->assertSame(
+            $registry->get('colors-background'),
+            $palette['colorpalette_button_accept']['text'] ?? null,
+            "colorpalette_button_accept.text must map to 'colors-background'."
         );
     }
 
     /** @test */
-    public function complianz_callback_appends_cookie_font_family_from_token_registry(): void
+    public function complianz_build_palette_colorpalette_button_deny_maps_background_border_text(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
         $registry = new Dynamo_Token_Registry();
-        $expected  = $registry->get('typography-body-font-family'); // 'system-sans'
+        $palette  = $driver->build_palette($registry);
 
-        $this->assertStringContainsString('--cookie-font-family', $css);
-        $this->assertStringContainsString(
-            $expected,
-            $css,
-            "--cookie-font-family must equal the Token Registry value for 'typography-body-font-family' ({$expected})."
+        $this->assertArrayHasKey('colorpalette_button_deny', $palette);
+        $this->assertSame(
+            $registry->get('colors-background'),
+            $palette['colorpalette_button_deny']['background'] ?? null,
+            "colorpalette_button_deny.background must map to 'colors-background'."
+        );
+        $this->assertSame(
+            $registry->get('colors-secondary'),
+            $palette['colorpalette_button_deny']['border'] ?? null,
+            "colorpalette_button_deny.border must map to 'colors-secondary'."
+        );
+        $this->assertSame(
+            $registry->get('colors-text'),
+            $palette['colorpalette_button_deny']['text'] ?? null,
+            "colorpalette_button_deny.text must map to 'colors-text'."
         );
     }
 
     /** @test */
-    public function complianz_callback_preserves_existing_css_and_appends_properties(): void
+    public function complianz_build_palette_colorpalette_button_settings_maps_background_border_text(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
+        $registry = new Dynamo_Token_Registry();
+        $palette  = $driver->build_palette($registry);
 
-        $existing = '.cmplz-banner { color: red; }';
-        $css       = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', $existing);
-
-        $this->assertStringContainsString(
-            $existing,
-            $css,
-            'Complianz callback must preserve existing CSS passed into the filter.'
+        $this->assertArrayHasKey('colorpalette_button_settings', $palette);
+        $this->assertSame(
+            $registry->get('colors-background'),
+            $palette['colorpalette_button_settings']['background'] ?? null,
+            "colorpalette_button_settings.background must map to 'colors-background'."
+        );
+        $this->assertSame(
+            $registry->get('colors-secondary'),
+            $palette['colorpalette_button_settings']['border'] ?? null,
+            "colorpalette_button_settings.border must map to 'colors-secondary'."
+        );
+        $this->assertSame(
+            $registry->get('colors-text'),
+            $palette['colorpalette_button_settings']['text'] ?? null,
+            "colorpalette_button_settings.text must map to 'colors-text'."
         );
     }
 
@@ -382,90 +411,82 @@ class CookieBannerTokenSyncTest extends TestCase
     }
 
     // -----------------------------------------------------------------------
-    // AC3 — dynamo_cookie_banner_tokens filter: add a custom token
+    // AC3 — dynamo_complianz_colorpalette filter: add, remove, remap entries
     // -----------------------------------------------------------------------
 
     /** @test */
-    public function complianz_callback_respects_filter_adding_new_token(): void
+    public function complianz_build_palette_respects_filter_adding_new_palette_field(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        add_filter('dynamo_cookie_banner_tokens', static function (array $map): array {
-            $map['--cookie-accent'] = 'colors-accent';
+        add_filter('dynamo_complianz_colorpalette', static function (array $map): array {
+            $map['colorpalette_custom'] = [
+                'color' => 'colors-accent',
+            ];
             return $map;
         });
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
         $registry = new Dynamo_Token_Registry();
-        $expected  = $registry->get('colors-accent'); // '#f59e0b'
+        $palette  = $driver->build_palette($registry);
 
-        $this->assertStringContainsString(
-            '--cookie-accent',
-            $css,
-            'Complianz callback must include custom properties added via dynamo_cookie_banner_tokens filter.'
+        $this->assertArrayHasKey(
+            'colorpalette_custom',
+            $palette,
+            'build_palette() must include new palette fields added via dynamo_complianz_colorpalette filter.'
         );
-        $this->assertStringContainsString(
-            $expected,
-            $css,
-            "--cookie-accent must equal the Token Registry value for 'colors-accent' ({$expected})."
-        );
-    }
-
-    /** @test */
-    public function complianz_callback_respects_filter_removing_a_token(): void
-    {
-        $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
-
-        add_filter('dynamo_cookie_banner_tokens', static function (array $map): array {
-            unset($map['--cookie-font-family']);
-            return $map;
-        });
-
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
-
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
-        $this->assertStringNotContainsString(
-            '--cookie-font-family',
-            $css,
-            'Complianz callback must NOT include --cookie-font-family when it is removed via the filter.'
+        $this->assertSame(
+            $registry->get('colors-accent'),
+            $palette['colorpalette_custom']['color'] ?? null,
+            "colorpalette_custom.color must equal the Token Registry value for 'colors-accent'."
         );
     }
 
     /** @test */
-    public function complianz_callback_respects_filter_remapping_a_token(): void
+    public function complianz_build_palette_respects_filter_removing_a_palette_field(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
-        // Remap --cookie-primary to read from colors-secondary instead.
-        add_filter('dynamo_cookie_banner_tokens', static function (array $map): array {
-            $map['--cookie-primary'] = 'colors-secondary';
+        add_filter('dynamo_complianz_colorpalette', static function (array $map): array {
+            unset($map['colorpalette_toggles']);
             return $map;
         });
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
+        $registry = new Dynamo_Token_Registry();
+        $palette  = $driver->build_palette($registry);
 
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
-        $registry         = new Dynamo_Token_Registry();
-        $remappedValue    = $registry->get('colors-secondary'); // '#6b7280'
-        $originalValue    = $registry->get('colors-primary');   // '#3b82f6'
-
-        $this->assertStringContainsString(
-            $remappedValue,
-            $css,
-            "--cookie-primary must equal the remapped Token Registry value '{$remappedValue}'."
+        $this->assertArrayNotHasKey(
+            'colorpalette_toggles',
+            $palette,
+            'build_palette() must omit palette fields removed via dynamo_complianz_colorpalette filter.'
         );
-        $this->assertStringNotContainsString(
-            $originalValue,
-            $css,
-            "--cookie-primary must NOT equal the original value '{$originalValue}' after remapping."
+    }
+
+    /** @test */
+    public function complianz_build_palette_respects_filter_remapping_a_subkey_to_different_token(): void
+    {
+        $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
+
+        // Remap colorpalette_toggles.background from colors-primary to colors-secondary.
+        add_filter('dynamo_complianz_colorpalette', static function (array $map): array {
+            $map['colorpalette_toggles']['background'] = 'colors-secondary';
+            return $map;
+        });
+
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
+        $registry = new Dynamo_Token_Registry();
+        $palette  = $driver->build_palette($registry);
+
+        $this->assertSame(
+            $registry->get('colors-secondary'),
+            $palette['colorpalette_toggles']['background'] ?? null,
+            "colorpalette_toggles.background must equal the remapped Token Registry value for 'colors-secondary'."
+        );
+        $this->assertNotSame(
+            $registry->get('colors-primary'),
+            $palette['colorpalette_toggles']['background'] ?? null,
+            "colorpalette_toggles.background must NOT equal the original 'colors-primary' value after remapping."
         );
     }
 
@@ -519,7 +540,7 @@ class CookieBannerTokenSyncTest extends TestCase
     // -----------------------------------------------------------------------
 
     /** @test */
-    public function complianz_callback_reflects_customizer_change_to_primary_color(): void
+    public function complianz_build_palette_reflects_customizer_change_to_primary_color(): void
     {
         $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
 
@@ -529,20 +550,25 @@ class CookieBannerTokenSyncTest extends TestCase
             return $defaults;
         });
 
-        $driver = new Dynamo_Cookie_Driver_Complianz();
-        $driver->register_palette_sync_hooks();
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
+        $registry = new Dynamo_Token_Registry();
+        $palette  = $driver->build_palette($registry);
 
-        $css = $this->invokeFirstCallbackOnFilter('cmplz_banner_css', '');
-
-        $this->assertStringContainsString(
+        // colors-primary feeds colorpalette_toggles.background and the accept button.
+        $this->assertSame(
             '#ff0000',
-            $css,
-            '--cookie-primary must reflect the updated Customizer value (#ff0000) read from Token Registry.'
+            $palette['colorpalette_toggles']['background'] ?? null,
+            'colorpalette_toggles.background must reflect the updated colors-primary value (#ff0000).'
         );
-        $this->assertStringNotContainsString(
-            '#3b82f6',
-            $css,
-            '--cookie-primary must NOT retain the original default value (#3b82f6) after a Customizer change.'
+        $this->assertSame(
+            '#ff0000',
+            $palette['colorpalette_button_accept']['background'] ?? null,
+            'colorpalette_button_accept.background must reflect the updated colors-primary value (#ff0000).'
+        );
+        $this->assertSame(
+            '#ff0000',
+            $palette['colorpalette_button_accept']['border'] ?? null,
+            'colorpalette_button_accept.border must reflect the updated colors-primary value (#ff0000).'
         );
     }
 
@@ -569,12 +595,130 @@ class CookieBannerTokenSyncTest extends TestCase
     }
 
     // -----------------------------------------------------------------------
+    // AC5 — Hash guard: Complianz colors not overwritten on non-color saves
+    // -----------------------------------------------------------------------
+
+    /** @test */
+    public function customize_save_after_skips_db_write_when_palette_hash_unchanged(): void
+    {
+        $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
+
+        $driver   = new Dynamo_Cookie_Driver_Complianz();
+        $registry = new Dynamo_Token_Registry();
+        $palette  = $driver->build_palette($registry);
+        $hash     = md5(serialize($palette));
+
+        // Pre-seed a matching hash so this save looks like "nothing changed".
+        $GLOBALS['wp_options']['dynamo_complianz_palette_hash'] = $hash;
+
+        $driver->register_palette_sync_hooks();
+        $this->invokeCustomizeSaveAfterCallback();
+
+        // No update_option calls should have been made (early return path).
+        $this->assertEmpty(
+            $GLOBALS['wp_update_option_calls'],
+            'When the palette hash is unchanged, customize_save_after must not call update_option (Complianz colors must be left alone).'
+        );
+
+        // No DB rows should have been written.
+        $this->assertEmpty(
+            $GLOBALS['wpdb_update_calls'],
+            'When the palette hash is unchanged, customize_save_after must not write to wp_cmplz_cookiebanners.'
+        );
+    }
+
+    /** @test */
+    public function customize_save_after_writes_db_and_stores_hash_when_palette_changes(): void
+    {
+        $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
+
+        // Stale hash → this save is treated as a color-token change.
+        $GLOBALS['wp_options']['dynamo_complianz_palette_hash'] = 'stale-hash';
+
+        $driver = new Dynamo_Cookie_Driver_Complianz();
+        $driver->register_palette_sync_hooks();
+        $this->invokeCustomizeSaveAfterCallback();
+
+        $stored = $GLOBALS['wp_options']['dynamo_complianz_palette_hash'] ?? '';
+
+        $this->assertNotSame(
+            'stale-hash',
+            $stored,
+            'After a palette change, customize_save_after must overwrite the stale hash.'
+        );
+        $this->assertNotEmpty(
+            $stored,
+            'After a palette change, a non-empty hash must be persisted via update_option.'
+        );
+        $this->assertNotEmpty(
+            $GLOBALS['wpdb_update_calls'],
+            'After a palette change, customize_save_after must write to wp_cmplz_cookiebanners.'
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // AC5 — admin_init baseline: hash seeded without writing to Complianz DB
+    // -----------------------------------------------------------------------
+
+    /** @test */
+    public function admin_init_stores_baseline_hash_when_no_hash_exists(): void
+    {
+        $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
+
+        // No hash stored yet (simulates first admin page load after deployment).
+        unset($GLOBALS['wp_options']['dynamo_complianz_palette_hash']);
+
+        $driver = new Dynamo_Cookie_Driver_Complianz();
+        $driver->register_palette_sync_hooks();
+        $this->invokeAdminInitCallback();
+
+        $stored = $GLOBALS['wp_options']['dynamo_complianz_palette_hash'] ?? false;
+
+        $this->assertNotFalse(
+            $stored,
+            'admin_init must store the palette hash when none exists yet.'
+        );
+        $this->assertNotEmpty(
+            $stored,
+            'admin_init must store a non-empty hash string.'
+        );
+        // Critically: no DB rows written — only the option is set.
+        $this->assertEmpty(
+            $GLOBALS['wpdb_update_calls'],
+            'admin_init must NOT write to wp_cmplz_cookiebanners — it only seeds the hash.'
+        );
+    }
+
+    /** @test */
+    public function admin_init_does_not_overwrite_existing_hash(): void
+    {
+        $this->assertClassExists('Dynamo_Cookie_Driver_Complianz');
+
+        $existing = 'previously-stored-hash';
+        $GLOBALS['wp_options']['dynamo_complianz_palette_hash'] = $existing;
+
+        $driver = new Dynamo_Cookie_Driver_Complianz();
+        $driver->register_palette_sync_hooks();
+        $this->invokeAdminInitCallback();
+
+        $this->assertSame(
+            $existing,
+            $GLOBALS['wp_options']['dynamo_complianz_palette_hash'],
+            'admin_init must not overwrite a hash that already exists.'
+        );
+        $this->assertEmpty(
+            $GLOBALS['wpdb_update_calls'],
+            'admin_init must not write to Complianz DB when a hash already exists.'
+        );
+    }
+
+    // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
 
     /**
      * Soft-load the cookie driver files. During the red phase these files
-     * exist but contain stubs; tests will fail at the assertion level rather
+     * exist but contain stubs; tests will fail at the assertions level rather
      * than with a fatal require error.
      */
     private function loadCookieFiles(): void
@@ -601,6 +745,39 @@ class CookieBannerTokenSyncTest extends TestCase
             class_exists($className),
             "Class {$className} must exist. Ensure the cookie driver files are loaded."
         );
+    }
+
+    /**
+     * Fire every callback registered on admin_init, in priority order.
+     */
+    private function invokeAdminInitCallback(): void
+    {
+        if (empty($GLOBALS['wp_filter']['admin_init'])) {
+            return;
+        }
+        ksort($GLOBALS['wp_filter']['admin_init']);
+        foreach ($GLOBALS['wp_filter']['admin_init'] as $callbacks) {
+            foreach ($callbacks as $callback) {
+                $callback();
+            }
+        }
+    }
+
+    /**
+     * Fire every callback registered on customize_save_after, in priority order.
+     * The hook receives no arguments (it is an action, not a filter).
+     */
+    private function invokeCustomizeSaveAfterCallback(): void
+    {
+        if (empty($GLOBALS['wp_filter']['customize_save_after'])) {
+            return;
+        }
+        ksort($GLOBALS['wp_filter']['customize_save_after']);
+        foreach ($GLOBALS['wp_filter']['customize_save_after'] as $callbacks) {
+            foreach ($callbacks as $callback) {
+                $callback();
+            }
+        }
     }
 
     /**
