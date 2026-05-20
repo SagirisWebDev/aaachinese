@@ -8,7 +8,7 @@ $dynamo_has_sidebar = in_array( $dynamo_layout, [ 'sidebar-left', 'sidebar-right
 ?>
 
 <main id="main" class="site-main" tabindex="-1">
-    <div class="dynamo-container dynamo-content-wrap<?php echo $dynamo_has_sidebar ? ' dynamo-has-sidebar' : ''; ?>">
+    <div class="dynamo-container dynamo-content-wrap<?php echo esc_attr( $dynamo_has_sidebar ? ' dynamo-has-sidebar' : '' ); ?>">
 
         <?php if ( $dynamo_has_sidebar && $dynamo_layout === 'sidebar-left' ) : ?>
             <aside class="widget-area dynamo-sidebar"><?php dynamic_sidebar( 'sidebar-1' ); ?></aside>

@@ -67,7 +67,7 @@ declare(strict_types=1);
  * ---------------------------------------------------------------------- */
 // dynamo_config_customizer([
 //     'id'       => 'header_bg',
-//     'type'     => 'color' | 'text,
+//     'type'     => 'color',
 //     'label'    => 'Header background',
 //     'section'  => 'header_styling',
 //     'selector' => '.site-header',

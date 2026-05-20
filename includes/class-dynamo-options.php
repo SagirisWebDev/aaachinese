@@ -90,7 +90,7 @@ class Dynamo_Options {
         
         $deps = include_once DYNAMO_PATH . '/assets/js/options/options.asset.php';
         wp_enqueue_script(
-            'dynamo-options/',
+            'dynamo-options',
             DYNAMO_URL . 'assets/js/options/options.js',
             $deps['dependencies'],
             $deps['version'],
