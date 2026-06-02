@@ -15,6 +15,14 @@ const RADIUS_PRESET_OPTIONS = [
     { value: 'pill',    label: 'Pill' },
 ];
 
+const WIDTH_NATIVE_NOTE  = 'Native width is set above. Clear it to use a Dynamo preset.';
+const RADIUS_NATIVE_NOTE = 'Native radius is set above. Clear it to use a Dynamo preset.';
+
+// undefined, '', and 0 are treated as "unset" per the approved detection rule.
+function isNativeSet(value) {
+    return value !== undefined && value !== '' && value !== 0;
+}
+
 const { addFilter } = wp.hooks;
 
 addFilter(
@@ -67,6 +75,10 @@ addFilter(
         if (!attributes.dynamoWidth) {
             return props;
         }
+        var layout = attributes.layout || {};
+        if (isNativeSet(layout.contentSize) || isNativeSet(layout.wideSize)) {
+            return props;
+        }
         return Object.assign({}, props, {
             style: Object.assign(
                 {},
@@ -82,6 +94,11 @@ addFilter(
     'dynamo/token-presets/apply-radius-style',
     function applyRadiusStyle(props, blockType, attributes) {
         if (!attributes.dynamoRadius) {
+            return props;
+        }
+        var attrStyle = attributes.style || {};
+        var nativeRadius = attrStyle.border && attrStyle.border.radius;
+        if (isNativeSet(nativeRadius)) {
             return props;
         }
         return Object.assign({}, props, {
@@ -120,6 +137,13 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
                 var dynamoWidth  = attributes.dynamoWidth  || '';
                 var dynamoRadius = attributes.dynamoRadius || '';
 
+                var attrLayout = attributes.layout || {};
+                var nativeWidthSet = isNativeSet(attrLayout.contentSize) || isNativeSet(attrLayout.wideSize);
+
+                var attrStyle = attributes.style || {};
+                var nativeBorder = attrStyle.border || {};
+                var nativeRadiusSet = isNativeSet(nativeBorder.radius);
+
                 var widthOptions  = [{ value: '', label: '— Default —' }].concat(WIDTH_PRESET_OPTIONS);
                 var radiusOptions = [{ value: '', label: '— None —' }].concat(RADIUS_PRESET_OPTIONS);
 
@@ -128,27 +152,41 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
                 if (hasLayout) {
                     controls.push(
                         wp.element.createElement(wp.components.SelectControl, {
+                            key: 'dynamo-width',
                             label: 'Width',
                             value: dynamoWidth,
                             options: widthOptions,
+                            disabled: nativeWidthSet,
                             onChange: function (value) {
                                 setAttributes({ dynamoWidth: value });
                             },
                         })
                     );
+                    if (nativeWidthSet) {
+                        controls.push(
+                            wp.element.createElement('p', { key: 'dynamo-width-note', style: { fontSize: '12px', marginTop: '4px' } }, WIDTH_NATIVE_NOTE)
+                        );
+                    }
                 }
 
                 if (hasRadius) {
                     controls.push(
                         wp.element.createElement(wp.components.SelectControl, {
+                            key: 'dynamo-radius',
                             label: 'Radius',
                             value: dynamoRadius,
                             options: radiusOptions,
+                            disabled: nativeRadiusSet,
                             onChange: function (value) {
                                 setAttributes({ dynamoRadius: value });
                             },
                         })
                     );
+                    if (nativeRadiusSet) {
+                        controls.push(
+                            wp.element.createElement('p', { key: 'dynamo-radius-note', style: { fontSize: '12px', marginTop: '4px' } }, RADIUS_NATIVE_NOTE)
+                        );
+                    }
                 }
 
                 return wp.element.createElement(
@@ -177,4 +215,4 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
     );
 }
 
-module.exports = { WIDTH_PRESET_OPTIONS, RADIUS_PRESET_OPTIONS };
+module.exports = { WIDTH_PRESET_OPTIONS, RADIUS_PRESET_OPTIONS, WIDTH_NATIVE_NOTE, RADIUS_NATIVE_NOTE };
