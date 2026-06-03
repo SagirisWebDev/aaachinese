@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-define('DYNAMO_VERSION', '1.1.0');
+define('DYNAMO_VERSION', '1.3.0');
 define('DYNAMO_PATH', get_template_directory());
 define('DYNAMO_URL', trailingslashit(get_template_directory_uri()));
 
@@ -33,17 +33,6 @@ require_once DYNAMO_PATH . '/includes/cookie/class-dynamo-cookie-integration.php
 
 add_action('after_setup_theme', [new Dynamo_Cookie_Integration(), 'detect_and_register'], 11);
 
-add_action('admin_notices', function(): void {
-    if (WP_Block_Type_Registry::get_instance()->is_registered('dynamo/consent-gate')) {
-        return;
-    }
-    echo '<div class="notice notice-warning"><p>'
-        . wp_kses(
-            __('<strong>Dynamo:</strong> The Consent Gate block requires the <strong>Dynamo Consent Gate</strong> plugin. Please install and activate it.', 'dynamo'),
-            ['strong' => []]
-        )
-        . '</p></div>';
-});
 
 if (file_exists(DYNAMO_PATH . '/dynamo-extend-customizer.php')) {
     require_once DYNAMO_PATH . '/dynamo-extend-customizer.php';
@@ -94,6 +83,10 @@ add_action('after_setup_theme', function(): void {
         'style',
         'script',
     ]);
+    add_theme_support('wp-block-styles');
+    add_theme_support('responsive-embeds');
+    add_theme_support('align-wide');
+    add_editor_style('assets/css/style.css');
 
     register_nav_menus([
         'primary' => __('Primary Menu', 'dynamo'),
@@ -121,6 +114,9 @@ add_action('wp_enqueue_scripts', function(): void {
         DYNAMO_VERSION,
         true
     );
+    if (is_singular() && comments_open() && get_option('thread_comments')) {
+        wp_enqueue_script('comment-reply');
+    }
 });
 
 add_action('widgets_init', function(): void {

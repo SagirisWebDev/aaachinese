@@ -345,16 +345,8 @@ class Dynamo_Customizer {
             'section' => 'dynamo_borders_shadows_section',
         ]));
 
-        $length_description = __(
-            'Four lengths in order: offset-x offset-y blur-radius spread-radius. '
-            . 'offset-x shifts the shadow horizontally (positive = right, negative = left). '
-            . 'offset-y shifts the shadow vertically (positive = down, negative = up). '
-            . 'blur-radius softens the edge (higher = blurrier). '
-            . 'spread-radius grows (positive) or shrinks (negative) the shadow. '
-            . 'Prefix with "inset" to draw the shadow inside the element. '
-            . 'Separate multiple stacked shadows with commas.',
-            'dynamo'
-        );
+        // phpcs:ignore Generic.Files.LineLength.TooLong
+        $length_description = __( 'Four lengths in order: offset-x offset-y blur-radius spread-radius. offset-x shifts the shadow horizontally (positive = right, negative = left). offset-y shifts the shadow vertically (positive = down, negative = up). blur-radius softens the edge (higher = blurrier). spread-radius grows (positive) or shrinks (negative) the shadow. Prefix with "inset" to draw the shadow inside the element. Separate multiple stacked shadows with commas.', 'dynamo' );
 
         $shadow_groups = [
             'sm' => __('Header & Menu', 'dynamo'),

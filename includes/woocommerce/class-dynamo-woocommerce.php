@@ -432,7 +432,17 @@ class Dynamo_WooCommerce {
 
         $registry = new Dynamo_Token_Registry();
 
-        foreach (self::COLOUR_TOKENS as $token => $label) {
+        $colour_labels = [
+            'woocommerce-sale-badge-bg'      => __('Sale Badge Background', 'dynamo'),
+            'woocommerce-sale-badge-color'   => __('Sale Badge Text', 'dynamo'),
+            'woocommerce-star-color'         => __('Star Rating', 'dynamo'),
+            'woocommerce-add-to-cart-bg'     => __('Add to Cart Background', 'dynamo'),
+            'woocommerce-add-to-cart-color'  => __('Add to Cart Text', 'dynamo'),
+            'woocommerce-single-price-color' => __('Single Product Price', 'dynamo'),
+            'woocommerce-loop-price-color'   => __('Shop Loop Price', 'dynamo'),
+        ];
+
+        foreach (self::COLOUR_TOKENS as $token => $unused) {
             $setting_id = 'dynamo_' . str_replace('-', '_', $token);
             $wp_customize->add_setting($setting_id, [
                 'default'           => $registry->get($token) ?? '#000000',
@@ -440,7 +450,7 @@ class Dynamo_WooCommerce {
                 'transport'         => 'postMessage',
             ]);
             $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, $setting_id, [
-                'label'   => __($label, 'dynamo'),
+                'label'   => $colour_labels[$token] ?? $token,
                 'section' => 'dynamo_woocommerce_colours',
             ]));
         }

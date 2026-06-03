@@ -1,0 +1,44 @@
+# Files to exclude from the WordPress.org theme submission zip.
+# Used by: wp dist-archive (or manual zip creation).
+
+# Development tooling
+.distignore
+.editorconfig
+.eslintrc*
+.gitignore
+.phpcs.xml
+.stylelintrc*
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+composer.json
+composer.lock
+package.json
+package-lock.json
+webpack.config.js
+playwright.config.js
+
+# Dependencies (dev-only; no Composer autoloader used at runtime)
+node_modules/
+vendor/
+
+# Tests
+tests/
+test-results/
+.playwright-mcp/
+tests/frontend/
+
+# CI / GitHub
+.github/
+
+# Docs / planning (not needed by end users)
+docs/
+issues/
+AGENTS.md
+CLAUDE.md
+CHANGELOG.md
+TESTING.md
+WPD_REQS.md
+
+# Screenshots used during development
+screenshot-*.png

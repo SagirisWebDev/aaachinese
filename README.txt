@@ -3,7 +3,7 @@
 Theme Name: Dynamo
 Tags: custom-colors, custom-menu, custom-logo, featured-images, full-width-template, sticky-post, theme-options, threaded-comments, translation-ready, block-styles, wide-blocks
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 7.0
 Requires PHP: 8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -112,4 +112,5 @@ The options panel (assets/js/options/options.js) is compiled from source
 wp-components, wp-api-fetch, and react-jsx-runtime as external dependencies
 provided by WordPress core — no third-party code is bundled in the output file.
 
-Screenshot: [to be added]
+Screenshot: AI-generated image created by Sagiris Web Development using Google Gemini.
+Copyright 2024 Sagiris Web Development. License: GPL-2.0-or-later

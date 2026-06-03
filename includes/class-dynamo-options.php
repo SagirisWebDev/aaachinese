@@ -151,7 +151,6 @@ class Dynamo_Options {
         // earliest hook where the handle is reliably present.
         if (self::is_performance_enabled('remove_jquery_migrate')) {
             wp_dequeue_script('jquery-migrate');
-            wp_deregister_script('jquery-migrate');
         }
     }
 

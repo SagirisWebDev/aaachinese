@@ -604,3 +604,74 @@ h6 {
         width: 100%;
     }
 }
+
+/* ── WordPress required classes ─────────────────────────────────────────── */
+
+.screen-reader-text {
+    border: 0;
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    word-wrap: normal !important;
+}
+
+.screen-reader-text:focus {
+    background-color: var(--dynamo-colors-background, #fff);
+    clip: auto !important;
+    clip-path: none;
+    color: var(--dynamo-colors-text, #000);
+    display: block;
+    font-size: 0.875em;
+    font-weight: 700;
+    height: auto;
+    left: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    text-decoration: none;
+    top: 0.5rem;
+    width: auto;
+    z-index: 100000;
+}
+
+.alignleft {
+    float: left;
+    margin: 0 1.5em 1em 0;
+}
+
+.alignright {
+    float: right;
+    margin: 0 0 1em 1.5em;
+}
+
+.aligncenter {
+    display: block;
+    margin-inline: auto;
+}
+
+.wp-caption {
+    max-width: 100%;
+}
+
+.wp-caption img {
+    display: block;
+    max-width: 100%;
+}
+
+.wp-caption-text,
+.gallery-caption {
+    font-size: 0.875em;
+    color: var(--dynamo-colors-text, currentColor);
+    margin: 0.25em 0 0;
+}
+
+.sticky {
+    display: block;
+}
+
+.bypostauthor {
+    display: block;
+}
