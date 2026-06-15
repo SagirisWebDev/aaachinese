@@ -218,7 +218,13 @@
 .woocommerce ul.products,
 .woocommerce-page ul.products {
     display: grid;
-    grid-template-columns: repeat(var(--dynamo-woocommerce-shop-columns, 3), 1fr);
+    /* minmax(0, 1fr) instead of plain 1fr: 1fr resolves to minmax(auto, 1fr),
+       which lets a column grow past its equal share when an item's min-content
+       is wider than the share. The plain form looks fine when every column
+       has many items (their min-content widths average out), but goes uneven
+       the moment a few cards are visible — exposed by the live category
+       filter (wc-live-category-filter plugin) hiding cards via [hidden]. */
+    grid-template-columns: repeat(var(--dynamo-woocommerce-shop-columns, 3), minmax(0, 1fr));
     gap: 1.5rem;
     margin: 0;
     padding: 0;
@@ -228,7 +234,7 @@
 
 .woocommerce .related ul.products,
 .woocommerce-page .related ul.products {
-    grid-template-columns: repeat(var(--dynamo-woocommerce-single-related-columns, 4), 1fr);
+    grid-template-columns: repeat(var(--dynamo-woocommerce-single-related-columns, 4), minmax(0, 1fr));
 }
 
 .woocommerce ul.products::before,
@@ -263,13 +269,13 @@
 @media (max-width: 768px) {
     .woocommerce ul.products,
     .woocommerce-page ul.products {
-        grid-template-columns: repeat(min(2, var(--dynamo-woocommerce-shop-columns, 3)), 1fr);
+        grid-template-columns: repeat(min(2, var(--dynamo-woocommerce-shop-columns, 3)), minmax(0, 1fr));
         gap: 1rem;
     }
 
     .woocommerce .related ul.products,
     .woocommerce-page .related ul.products {
-        grid-template-columns: repeat(min(2, var(--dynamo-woocommerce-single-related-columns, 4)), 1fr);
+        grid-template-columns: repeat(min(2, var(--dynamo-woocommerce-single-related-columns, 4)), minmax(0, 1fr));
     }
 }
 
