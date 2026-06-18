@@ -680,9 +680,20 @@ h6 {
    Map the plugin's chip variables to the theme accent so hover, focus,
    and active states pick up the site palette instead of the plugin's
    neutral defaults. Scoped to .wclcf-chip-row so the variables only
-   resolve when the chip row is actually on the page. */
+   resolve when the chip row is actually on the page.
+
+   Hover/focus uses the same solid accent fill as the active state so
+   the chip "previews" what selection will look like — but we also need
+   to lift the text colour so it stays readable against the accent
+   (the plugin doesn't expose a --wclcf-chip-hover-fg variable). */
 .wclcf-chip-row {
     --wclcf-chip-active-bg: var(--dynamo-colors-accent);
     --wclcf-chip-active-fg: var(--dynamo-colors-background);
-    --wclcf-chip-hover-bg: color-mix(in srgb, var(--dynamo-colors-accent) 18%, transparent);
+    --wclcf-chip-hover-bg: var(--dynamo-colors-accent);
+}
+
+.wclcf-chip:hover,
+.wclcf-chip:focus-visible {
+    color: var(--dynamo-colors-background);
+    border-color: var(--dynamo-colors-accent);
 }
