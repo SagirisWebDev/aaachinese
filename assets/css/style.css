@@ -675,3 +675,14 @@ h6 {
 .bypostauthor {
     display: block;
 }
+
+/* ── WC Live Category Filter chip palette ───────────────────────────────
+   Map the plugin's chip variables to the theme accent so hover, focus,
+   and active states pick up the site palette instead of the plugin's
+   neutral defaults. Scoped to .wclcf-chip-row so the variables only
+   resolve when the chip row is actually on the page. */
+.wclcf-chip-row {
+    --wclcf-chip-active-bg: var(--dynamo-colors-accent);
+    --wclcf-chip-active-fg: var(--dynamo-colors-background);
+    --wclcf-chip-hover-bg: color-mix(in srgb, var(--dynamo-colors-accent) 18%, transparent);
+}
