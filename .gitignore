@@ -7,3 +7,5 @@ issues/
 phpunit.xml
 .agents/
 docs/
+.DS_Store
+**/.DS_Store
