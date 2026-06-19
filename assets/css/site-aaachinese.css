@@ -356,15 +356,9 @@ body.single-product div.product form.cart .quantity {
     color: #f9f9f9;
 }
 
-.woocommerce-cart a.checkout-button {
-    background-color: #D0BE1E !important;
-    color: #111111 !important;
-}
-
-.woocommerce-cart a.checkout-button:hover {
-    background-color: #bfaf1a !important;
-    color: #111111 !important;
-}
+/* Cart "Proceed to checkout" styling now lives in woocommerce.css as
+   accent-driven tokens with hover/focus states. Site-specific override
+   removed to keep one source of truth. */
 
 @media (max-width: 768px) {
     .woocommerce-cart table.shop_table_responsive tr td.product-name {
@@ -564,12 +558,25 @@ h6 { font-size: clamp(1.375rem,  3vw,   1.75rem); }
 .woocommerce-page ul.products li.product .button {
     background-color: #D0BE1E;
     color: #111111;
+    border: 2px solid #D0BE1E;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 
+/* Hover darkens the fill; focus-visible adds a halo + outer ring so
+   keyboard users get an obvious focus indicator the mouse hover lacks. */
 .woocommerce ul.products li.product .button:hover,
-.woocommerce-page ul.products li.product .button:hover {
+.woocommerce-page ul.products li.product .button:hover,
+.woocommerce ul.products li.product .button:focus-visible,
+.woocommerce-page ul.products li.product .button:focus-visible {
     background-color: #bfaf1a;
     color: #111111;
+    border-color: #111111;
+    outline: none;
+}
+
+.woocommerce ul.products li.product .button:focus-visible,
+.woocommerce-page ul.products li.product .button:focus-visible {
+    box-shadow: 0 0 0 2px #111111, 0 0 0 4px #D0BE1E;
 }
 
 .woocommerce ul.products li.product .price,

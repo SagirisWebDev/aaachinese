@@ -50,15 +50,44 @@
     border: var(--dynamo-borders-width) solid var(--dynamo-borders-color);
 }
 
+/* Primary checkout-flow CTAs: Cart "Proceed to checkout" + Checkout
+   "Place order". Use the accent palette so they stand out against the
+   dark page background and match the active-chip treatment. Text uses
+   --dynamo-colors-background so it contrasts with the accent fill
+   regardless of the site palette (dark text on light accent on a dark
+   site, light text on dark accent on a light site). */
+/* !important on bg + color is required because WooCommerce core's own
+   stylesheet loads AFTER theme woocommerce.css and would otherwise paint
+   these buttons in WC's signature purple (#7F54B3). The rest of the
+   declarations can ride on normal specificity. */
 .woocommerce-cart a.checkout-button,
 .woocommerce-checkout #place_order {
-    background-color: var(--dynamo-colors-primary);
-    color: var(--dynamo-colors-background);
-    border: 0;
+    background-color: var(--dynamo-colors-accent) !important;
+    color: var(--dynamo-colors-background) !important;
+    border: 2px solid var(--dynamo-colors-accent);
     padding: 0.75rem 1.25rem;
     border-radius: var(--dynamo-borders-radius);
     cursor: pointer;
     font-weight: 600;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+/* Hover + focus: darken the fill, swap the border to the page background
+   colour, and add a 2px halo + 2px accent ring on focus-visible so
+   keyboard users get an unmistakable focus signal. */
+.woocommerce-cart a.checkout-button:hover,
+.woocommerce-checkout #place_order:hover,
+.woocommerce-cart a.checkout-button:focus-visible,
+.woocommerce-checkout #place_order:focus-visible {
+    background-color: color-mix(in srgb, var(--dynamo-colors-accent) 82%, black) !important;
+    border-color: var(--dynamo-colors-background);
+    outline: none;
+}
+
+.woocommerce-cart a.checkout-button:focus-visible,
+.woocommerce-checkout #place_order:focus-visible {
+    box-shadow: 0 0 0 2px var(--dynamo-colors-background),
+                0 0 0 4px var(--dynamo-colors-accent);
 }
 
 .woocommerce-checkout form .form-row input,
@@ -79,13 +108,34 @@
     color: var(--dynamo-colors-text);
 }
 
+/* WC Blocks variant of the same CTAs. Mirrors the classic-checkout
+   treatment above so customers see the same accent-fill on either path. */
 .wp-block-woocommerce-checkout .wc-block-components-button,
 .wc-block-checkout .wc-block-components-button,
 .wc-block-checkout .wc-block-components-checkout-place-order-button {
-    background-color: var(--dynamo-colors-primary);
+    background-color: var(--dynamo-colors-accent);
     color: var(--dynamo-colors-background);
     border-radius: var(--dynamo-borders-radius);
-    border: 0;
+    border: 2px solid var(--dynamo-colors-accent);
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.wp-block-woocommerce-checkout .wc-block-components-button:hover,
+.wc-block-checkout .wc-block-components-button:hover,
+.wc-block-checkout .wc-block-components-checkout-place-order-button:hover,
+.wp-block-woocommerce-checkout .wc-block-components-button:focus-visible,
+.wc-block-checkout .wc-block-components-button:focus-visible,
+.wc-block-checkout .wc-block-components-checkout-place-order-button:focus-visible {
+    background-color: color-mix(in srgb, var(--dynamo-colors-accent) 82%, black);
+    border-color: var(--dynamo-colors-background);
+    outline: none;
+}
+
+.wp-block-woocommerce-checkout .wc-block-components-button:focus-visible,
+.wc-block-checkout .wc-block-components-button:focus-visible,
+.wc-block-checkout .wc-block-components-checkout-place-order-button:focus-visible {
+    box-shadow: 0 0 0 2px var(--dynamo-colors-background),
+                0 0 0 4px var(--dynamo-colors-accent);
 }
 
 .wp-block-woocommerce-checkout .wc-block-components-text-input input,
