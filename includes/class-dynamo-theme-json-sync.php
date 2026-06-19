@@ -30,7 +30,9 @@ class Dynamo_Theme_JSON_Sync {
     }
 
     private function inject_colours(array $data): array {
-        $existing = $data['settings']['color']['palette'] ?? [];
+        // get_data() returns WP's internal origin-keyed format; theme-file palette is under ['theme'].
+        $palette = $data['settings']['color']['palette'] ?? [];
+        $existing = $palette['theme'] ?? (isset($palette[0]) ? $palette : []);
         $existing = $this->strip_dynamo_entries($existing);
 
         foreach (self::$colour_map as $suffix => $token) {
@@ -46,7 +48,8 @@ class Dynamo_Theme_JSON_Sync {
     }
 
     private function inject_typography(array $data): array {
-        $families = $data['settings']['typography']['fontFamilies'] ?? [];
+        $raw_families = $data['settings']['typography']['fontFamilies'] ?? [];
+        $families = $raw_families['theme'] ?? (isset($raw_families[0]) ? $raw_families : []);
         $families = $this->strip_dynamo_entries($families);
         $families[] = [
             'slug'       => self::SLUG_PREFIX . 'body',
@@ -55,7 +58,8 @@ class Dynamo_Theme_JSON_Sync {
         ];
         $data['settings']['typography']['fontFamilies'] = $families;
 
-        $sizes = $data['settings']['typography']['fontSizes'] ?? [];
+        $raw_sizes = $data['settings']['typography']['fontSizes'] ?? [];
+        $sizes = $raw_sizes['theme'] ?? (isset($raw_sizes[0]) ? $raw_sizes : []);
         $sizes = $this->strip_dynamo_entries($sizes);
         $sizes[] = [
             'slug' => self::SLUG_PREFIX . 'body',

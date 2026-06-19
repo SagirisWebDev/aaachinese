@@ -1,4 +1,40 @@
 {
+    "jomolhari": {
+        "label": "Jomolhari",
+        "fallback": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "faces": [
+            {
+                "file": "jomolhari/jomolhari.woff2",
+                "weight": 400,
+                "style": "normal",
+                "display": "swap"
+            },
+            {
+                "file": "jomolhari/jomolhari.woff",
+                "weight": 400,
+                "style": "normal",
+                "display": "swap"
+            }
+        ]
+    },
+    "jomhuria": {
+        "label": "Jomhuria",
+        "fallback": "Georgia, 'Times New Roman', serif",
+        "faces": [
+            {
+                "file": "jomhuria/jomhuria-latin.woff2",
+                "weight": 400,
+                "style": "normal",
+                "display": "swap"
+            },
+            {
+                "file": "jomhuria/jomhuria-latin.woff",
+                "weight": 400,
+                "style": "normal",
+                "display": "swap"
+            }
+        ]
+    },
     "system-sans": {
         "label": "System Sans",
         "fallback": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",

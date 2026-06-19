@@ -1,0 +1,272 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"color": {
+			"defaultDuotone": false,
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"duotone": [
+				{
+					"colors": ["#111111", "#ffffff"],
+					"slug": "duotone-1",
+					"name": "Black and white"
+				},
+				{
+					"colors": ["#111111", "#C2A990"],
+					"slug": "duotone-2",
+					"name": "Black and sandstone"
+				},
+				{
+					"colors": ["#111111", "#D8613C"],
+					"slug": "duotone-3",
+					"name": "Black and rust"
+				},
+				{
+					"colors": ["#111111", "#B1C5A4"],
+					"slug": "duotone-4",
+					"name": "Black and sage"
+				},
+				{
+					"colors": ["#111111", "#B5BDBC"],
+					"slug": "duotone-5",
+					"name": "Black and pastel blue"
+				}
+			],
+			"gradients": [
+				{
+					"slug": "gradient-1",
+					"gradient": "linear-gradient(to bottom, #cfcabe 0%, #F9F9F9 100%)",
+					"name": "Vertical soft beige to white"
+				},
+				{
+					"slug": "gradient-2",
+					"gradient": "linear-gradient(to bottom, #C2A990 0%, #F9F9F9 100%)",
+					"name": "Vertical soft sandstone to white"
+				},
+				{
+					"slug": "gradient-3",
+					"gradient": "linear-gradient(to bottom, #D8613C 0%, #F9F9F9 100%)",
+					"name": "Vertical soft rust to white"
+				},
+				{
+					"slug": "gradient-4",
+					"gradient": "linear-gradient(to bottom, #B1C5A4 0%, #F9F9F9 100%)",
+					"name": "Vertical soft sage to white"
+				},
+				{
+					"slug": "gradient-5",
+					"gradient": "linear-gradient(to bottom, #B5BDBC 0%, #F9F9F9 100%)",
+					"name": "Vertical soft mint to white"
+				},
+				{
+					"slug": "gradient-6",
+					"gradient": "linear-gradient(to bottom, #A4A4A4 0%, #F9F9F9 100%)",
+					"name": "Vertical soft pewter to white"
+				},
+				{
+					"slug": "gradient-7",
+					"gradient": "linear-gradient(to bottom, #cfcabe 50%, #F9F9F9 50%)",
+					"name": "Vertical hard beige to white"
+				},
+				{
+					"slug": "gradient-8",
+					"gradient": "linear-gradient(to bottom, #C2A990 50%, #F9F9F9 50%)",
+					"name": "Vertical hard sandstone to white"
+				},
+				{
+					"slug": "gradient-9",
+					"gradient": "linear-gradient(to bottom, #D8613C 50%, #F9F9F9 50%)",
+					"name": "Vertical hard rust to white"
+				},
+				{
+					"slug": "gradient-10",
+					"gradient": "linear-gradient(to bottom, #B1C5A4 50%, #F9F9F9 50%)",
+					"name": "Vertical hard sage to white"
+				},
+				{
+					"slug": "gradient-11",
+					"gradient": "linear-gradient(to bottom, #B5BDBC 50%, #F9F9F9 50%)",
+					"name": "Vertical hard mint to white"
+				},
+				{
+					"slug": "gradient-12",
+					"gradient": "linear-gradient(to bottom, #A4A4A4 50%, #F9F9F9 50%)",
+					"name": "Vertical hard pewter to white"
+				}
+			],
+			"palette": [
+				{
+					"color": "#ffffff",
+					"name": "Pure White",
+					"slug": "pure-white"
+				},
+				{
+					"color": "#f9f9f9",
+					"name": "Off White",
+					"slug": "off-white"
+				},
+				{
+					"color": "#111111",
+					"name": "Off Black",
+					"slug": "off-black"
+				},
+				{
+					"color": "#282828",
+					"name": "Dark Grey",
+					"slug": "dark-grey"
+				},
+				{
+					"color": "#D0BE1E",
+					"name": "Accent Gold",
+					"slug": "accent"
+				},
+				{
+					"color": "#d9d9d9",
+					"name": "Light Grey",
+					"slug": "light-grey"
+				}
+			]
+		},
+		"dimensions": {
+			"minHeight": true
+		},
+		"layout": {
+			"contentSize": "720px",
+			"wideSize": "1440px"
+		},
+		"spacing": {
+			"blockGap": true,
+			"customSpacingSize": true,
+			"margin": true,
+			"padding": true,
+			"spacingSizes": [
+				{
+					"name": "1",
+					"size": "1rem",
+					"slug": "10"
+				},
+				{
+					"name": "2",
+					"size": "min(1.5rem, 2vw)",
+					"slug": "20"
+				},
+				{
+					"name": "3",
+					"size": "min(2.5rem, 3vw)",
+					"slug": "30"
+				},
+				{
+					"name": "4",
+					"size": "min(4rem, 5vw)",
+					"slug": "40"
+				},
+				{
+					"name": "5",
+					"size": "min(6.5rem, 8vw)",
+					"slug": "50"
+				},
+				{
+					"name": "6",
+					"size": "min(10.5rem, 13vw)",
+					"slug": "60"
+				}
+			],
+			"units": ["%", "px", "em", "rem", "vh", "vw"]
+		},
+		"typography": {
+			"fluid": true,
+			"fontFamilies": [
+				{
+					"fontFamily": "Jomolhari, sans-serif",
+					"name": "Jomolhari",
+					"slug": "jomolhari"
+				},
+				{
+					"fontFamily": "Jomhuria, serif",
+					"name": "Jomhuria",
+					"slug": "jomhuria"
+				},
+				{
+					"fontFamily": "-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif",
+					"name": "System Sans-serif",
+					"slug": "system-sans-serif"
+				},
+				{
+					"fontFamily": "Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif",
+					"name": "System Serif",
+					"slug": "system-serif"
+				}
+			],
+			"fontSizes": [
+				{
+					"fluid": false,
+					"name": "Extra Small",
+					"size": "0.825rem",
+					"slug": "x-small"
+				},
+				{
+					"fluid": false,
+					"name": "Small",
+					"size": "16px",
+					"slug": "small"
+				},
+				{
+					"fluid": {
+						"min": "1.5rem",
+						"max": "1.8rem"
+					},
+					"name": "Medium",
+					"size": "1.8rem",
+					"slug": "medium"
+				},
+				{
+					"fluid": {
+						"min": "1.9rem",
+						"max": "2.25rem"
+					},
+					"name": "Large",
+					"size": "2.25rem",
+					"slug": "large"
+				},
+				{
+					"fluid": {
+						"min": "2.5rem",
+						"max": "3rem"
+					},
+					"name": "X Large",
+					"size": "3rem",
+					"slug": "x-large"
+				},
+				{
+					"fluid": {
+						"min": "3.5rem",
+						"max": "4.5rem"
+					},
+					"name": "XX Large",
+					"size": "4.5rem",
+					"slug": "xx-large"
+				}
+			],
+			"writingMode": true,
+			"letterSpacing": true,
+			"textDecoration": true,
+			"textAlign": true
+		},
+		"blocks": {
+			"core/image": {
+				"lightbox": {
+					"enabled": true
+				}
+			}
+		},
+		"position": {
+			"sticky": true
+		},
+		"shadow": {
+			"defaultPresets": true
+		},
+		"useRootPaddingAwareAlignments": true
+	}
+}

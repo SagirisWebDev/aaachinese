@@ -245,3 +245,33 @@ declare(strict_types=1);
 
 
 /* -------------- Write your custom customizer controls below this line ---------------- */
+
+// AAA Chinese site-specific token defaults.
+// These override Dynamo's built-in defaults with the AAA Chinese colour palette
+// and fonts. Values can still be overridden per-install via the Customizer.
+add_filter('dynamo_token_defaults', function (array $tokens): array {
+
+    // Typography
+    $tokens['typography-body-font-family'] = 'jomolhari';
+    foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as $level) {
+        $tokens["typography-{$level}-font-family"] = 'jomhuria';
+    }
+
+    // Colour palette — dark theme
+    $tokens['colors-primary']     = '#111111';
+    $tokens['colors-secondary']   = '#282828';
+    $tokens['colors-accent']      = '#D0BE1E';
+    $tokens['colors-background']  = '#1a1a1a';
+    $tokens['colors-text']        = '#f9f9f9';
+    $tokens['colors-link']        = '#D0BE1E';
+    $tokens['colors-section-alt'] = '#282828';
+
+    // Layout
+    $tokens['layout-container-max-width'] = '1440px';
+    $tokens['layout-content-width']       = '720px';
+
+    // WooCommerce
+    $tokens['woocommerce-shop-columns'] = '4';
+
+    return $tokens;
+});

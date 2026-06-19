@@ -1,0 +1,676 @@
+/* ==========================================================================
+   AAA Chinese — site-specific overrides for dynamo-aaachinese
+   ========================================================================== */
+
+/* ── Homepage template ──────────────────────────────────────────────────── */
+
+.aaa-home {
+    text-align: center;
+    padding: 0 1rem 3rem;
+}
+
+.aaa-home__heading {
+    margin-bottom: 0.25rem;
+}
+
+.aaa-home__subtitle {
+    color: #f9f9f9;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+.aaa-phone-group__call {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: #f9f9f9;
+    margin: 0;
+}
+
+.aaa-phone-group__number {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: #D0BE1E;
+    margin: 0;
+}
+
+.aaa-spend-deals {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin: 2.5rem 0;
+}
+
+.aaa-spend-deal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.aaa-spend-deal__amount {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    color: #f9f9f9;
+    margin: 0;
+}
+
+.aaa-spend-deal__get {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    color: #D0BE1E;
+    margin: 0.25rem 0;
+}
+
+.aaa-spend-deal__item {
+    font-size: 1rem;
+    color: #f9f9f9;
+    margin: 0;
+}
+
+.aaa-delivery {
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 1.5rem;
+}
+
+.aaa-delivery__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: #D0BE1E;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.aaa-delivery__detail {
+    color: #f9f9f9;
+    font-size: 0.9rem;
+    max-width: 52ch;
+    margin: 0 auto 0.75rem;
+}
+
+.aaa-delivery__pickup {
+    color: #c8c8c8;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+/* ── Features template ──────────────────────────────────────────────────── */
+
+.aaa-features {
+    padding: 1rem 0 3rem;
+}
+
+.aaa-features__heading {
+    margin-bottom: 2rem;
+}
+
+.aaa-feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.aaa-feature--reverse {
+    direction: rtl;
+}
+
+.aaa-feature--reverse > * {
+    direction: ltr;
+}
+
+.aaa-feature__img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    display: block;
+}
+
+.aaa-feature__img--portrait {
+    max-width: 280px;
+    justify-self: center;
+}
+
+.aaa-feature__text p {
+    color: #f9f9f9;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .aaa-feature,
+    .aaa-feature--reverse {
+        grid-template-columns: 1fr;
+        direction: ltr;
+    }
+
+    .aaa-home {
+        padding-inline: 0;
+    }
+
+}
+
+/* ── Order Online CTA ───────────────────────────────────────────────────── */
+
+.aaa-cta-phone-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.aaa-cta-or {
+    font-size: 1.25rem;
+    color: #f9f9f9;
+    font-style: italic;
+}
+
+.aaa-order-cta {
+    display: flex;
+    align-items: center;
+}
+
+.aaa-order-cta__button {
+    display: inline-block;
+    background-color: #D0BE1E;
+    color: #111111;
+    font-size: 1.125rem;
+    font-weight: 700;
+    padding: 0.875rem 2.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.aaa-order-cta__button:hover {
+    background-color: #bfaf1a;
+    color: #111111;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+    .aaa-order-cta__button {
+        padding-inline: 1.25rem;
+    }
+}
+
+/* ── Nav search ─────────────────────────────────────────────────────────── */
+
+.dynamo-nav-search {
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-width: 180px;
+}
+
+.dynamo-nav-search .search-form,
+.dynamo-nav-search label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+}
+
+.dynamo-nav-search .search-field {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #f9f9f9;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    width: 100%;
+}
+
+@media (max-width: 921px) {
+    .dynamo-nav-search .search-form {
+        padding: 0.75rem 0;
+    }
+}
+
+.dynamo-nav-search .search-field::placeholder {
+    color: rgba(249, 249, 249, 0.5);
+}
+
+.dynamo-nav-search .search-field:focus {
+    border-color: rgba(208, 190, 30, 0.6);
+    background-color: rgba(255, 255, 255, 0.15);
+    outline: none;
+}
+
+.dynamo-nav-search .search-submit {
+    display: none;
+}
+
+.aaa-search-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 280px;
+    background-color: rgba(17, 17, 17, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.dynamo-nav-search .aaa-search-results[hidden],
+.dynamo-nav-search .aaa-search-results:empty {
+    display: none;
+}
+
+.aaa-search-results li a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    color: #f9f9f9;
+    text-decoration: none;
+}
+
+.aaa-search-results li a:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #D0BE1E;
+}
+
+.aaa-search-results li img,
+.aaa-search-results__no-img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.aaa-search-results__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.aaa-search-results__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.aaa-search-results__price {
+    font-size: 0.8rem;
+    color: #D0BE1E;
+}
+
+/* ── Background ─────────────────────────────────────────────────────────── */
+
+body {
+    background-image: url('../img/AAA-background-tablet.webp');
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+    background-color: #1a1a1a;
+}
+
+/* ── Page content panels ────────────────────────────────────────────────── */
+/*
+ * Semi-transparent #282828 overlay on all .site-main instances so content
+ * is legible against the wood background texture on every page.
+ */
+
+.site-main {
+    background-color: rgba(41, 41, 41, 0.81);
+    margin: 24px;
+    padding: 24px;
+}
+
+body.single-product div.product p.price,
+body.single-product div.product span.price {
+    color: #f9f9f9 !important;
+}
+
+body.single-product div.product .cart .single_add_to_cart_button {
+    background-color: #D0BE1E !important;
+    color: #111111 !important;
+}
+
+body.single-product div.product .cart .single_add_to_cart_button:hover {
+    background-color: #bfaf1a !important;
+    color: #111111 !important;
+}
+
+body.single-product div.product form.cart .variations select {
+    color: #f9f9f9;
+    height: 2.75rem;
+    padding-block: 0.5rem;
+}
+
+body.single-product div.product form.cart .quantity input.qty {
+    color: #f9f9f9;
+}
+
+body.single-product div.product form.cart .quantity {
+    margin-right: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* ── Cart page ──────────────────────────────────────────────────────────── */
+
+.woocommerce-cart .product-quantity input.qty {
+    color: #f9f9f9;
+}
+
+.woocommerce-cart a.checkout-button {
+    background-color: #D0BE1E !important;
+    color: #111111 !important;
+}
+
+.woocommerce-cart a.checkout-button:hover {
+    background-color: #bfaf1a !important;
+    color: #111111 !important;
+}
+
+@media (max-width: 768px) {
+    .woocommerce-cart table.shop_table_responsive tr td.product-name {
+        text-align: left;
+    }
+
+    .woocommerce-cart table.shop_table_responsive tr td.product-name::before {
+        float: none;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .woocommerce-cart .coupon {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+    }
+
+    .woocommerce-cart .coupon .input-text,
+    .woocommerce-cart .coupon button[name="apply_coupon"] {
+        width: 100% !important;
+        margin: 0 !important;
+        float: none !important;
+    }
+}
+
+/* ── Checkout page ──────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    body.woocommerce-checkout .site-main {
+        margin: 8px;
+        padding: 12px;
+    }
+
+    body.woocommerce-checkout .form-row-first,
+    body.woocommerce-checkout .form-row-last {
+        width: 100%;
+        float: none;
+    }
+
+    body.woocommerce-checkout .woocommerce-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+
+/* ── Reviews ────────────────────────────────────────────────────────────── */
+
+.woocommerce #reviews #comments ol.commentlist {
+    padding-left: 0;
+}
+
+.woocommerce #reviews #comments ol.commentlist li .comment_container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.woocommerce #reviews #comments ol.commentlist li img.avatar {
+    position: static;
+    float: none;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    padding: 0;
+}
+
+.woocommerce #reviews #comments ol.commentlist li .comment-text {
+    flex: 1;
+    min-width: 0;
+    margin-left: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* ── Leave a review form ─────────────────────────────────────────────────── */
+
+.comment-form-author input,
+.comment-form-email input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ── Logo ───────────────────────────────────────────────────────────────── */
+
+.site-branding-logo img {
+    height: 40px;
+    width: auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+/*
+ * Dynamo's header uses color: var(--dynamo-colors-background) so text contrasts
+ * against the dark primary header background. When the site background token is
+ * dark (#1a1a1a) that variable becomes dark-on-dark. Override to near-white.
+ */
+
+.site-header {
+    color: #f9f9f9;
+    background-color: rgba(17, 17, 17, 0.92);
+    backdrop-filter: blur(4px);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.site-header .site-title a,
+.site-header .menu-primary-container a,
+.site-header .dynamo-menu-toggle {
+    color: #f9f9f9;
+}
+
+.site-header .site-title a:hover,
+.site-header .menu-primary-container a:hover {
+    color: #D0BE1E;
+}
+
+.site-header .dynamo-header-cart {
+    color: #f9f9f9;
+}
+
+.site-header .dynamo-header-cart__count {
+    background-color: #f9f9f9;
+    color: #111111;
+}
+
+/* ── Headings ───────────────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+    color: #D0BE1E;
+}
+
+h1 { font-size: clamp(2.8125rem, 6vw,   4.5rem); }
+h2 { font-size: clamp(2.375rem,  5vw,   3.5rem); }
+h3 { font-size: clamp(2.125rem,  4.5vw, 3rem); }
+h4 { font-size: clamp(1.875rem,  4vw,   2.5rem); }
+h5 { font-size: clamp(1.625rem,  3.5vw, 2rem); }
+h6 { font-size: clamp(1.375rem,  3vw,   1.75rem); }
+
+@media (min-width: 922px) {
+    h1, h2, h3, h4, h5, h6 { line-height: 0.95; }
+}
+
+/* ── Breadcrumbs ────────────────────────────────────────────────────────── */
+
+.dynamo-breadcrumbs,
+.dynamo-breadcrumbs a,
+.dynamo-breadcrumbs li + li::before {
+    color: #f9f9f9;
+}
+
+.woocommerce-breadcrumb,
+.woocommerce-breadcrumb a,
+.woocommerce-breadcrumb span {
+    color: #f9f9f9 !important;
+}
+
+/* ── WooCommerce product grid ───────────────────────────────────────────── */
+
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+    background-color: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+/* Make each product card a query container so its title can size from the
+   card's own width instead of the viewport. The cards stay ~150-250px wide
+   across breakpoints (column count changes, not card width), so the
+   site-wide vw-based clamps overshoot here. */
+.woocommerce ul.products li.product,
+.woocommerce-page ul.products li.product {
+    container-type: inline-size;
+}
+
+.woocommerce ul.products li.product .woocommerce-loop-product__title,
+.woocommerce-page ul.products li.product .woocommerce-loop-product__title {
+    color: #D0BE1E;
+    /* Floor 1.875rem (30px) ≈ 2× the chip font (0.9375rem). 25cqi scales
+       the title with the card's own width — wider cards (mobile 2-col,
+       single-col breakpoint) get a larger display title. Cap at 3rem to
+       stop it ballooning on the full-width single-column layout. */
+    font-size: clamp(1.875rem, 25cqi, 3rem);
+    line-height: 1.05;
+    /* Long single words (some menu item names are 12+ chars) would otherwise
+       extend past the card edge with word-break: normal. */
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.woocommerce ul.products li.product .button,
+.woocommerce-page ul.products li.product .button {
+    background-color: #D0BE1E;
+    color: #111111;
+}
+
+.woocommerce ul.products li.product .button:hover,
+.woocommerce-page ul.products li.product .button:hover {
+    background-color: #bfaf1a;
+    color: #111111;
+}
+
+.woocommerce ul.products li.product .price,
+.woocommerce-page ul.products li.product .price {
+    color: #f9f9f9;
+}
+
+/* Sale badge */
+.woocommerce span.onsale {
+    background-color: #D0BE1E;
+    color: #111111;
+}
+
+/* ── WooCommerce category filters ───────────────────────────────────────── */
+
+.woocommerce-widget-layered-nav a,
+.woocommerce-widget-layered-nav span,
+.widget_product_categories a {
+    color: #c8c8c8;
+}
+
+.woocommerce-widget-layered-nav a:hover,
+.widget_product_categories a:hover {
+    color: #D0BE1E;
+}
+
+/* ── Sidebar widgets ────────────────────────────────────────────────────── */
+
+.widget-area .widget {
+    background-color: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.widget-area .widget-title {
+    color: #D0BE1E;
+    border-bottom: 1px solid rgba(208, 190, 30, 0.3);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.widget-area a {
+    color: #c8c8c8;
+}
+
+.widget-area a:hover {
+    color: #D0BE1E;
+}
+
+/* ── Page titles ────────────────────────────────────────────────────────── */
+
+.entry-title,
+.aaa-features__heading,
+.woocommerce-products-header__title,
+.woocommerce-page-title,
+.page-title {
+    color: #D0BE1E;
+    font-size: clamp(2.8125rem, 6vw, 4.5rem);
+}
+
+body.woocommerce-shop .woocommerce-products-header__title,
+body.woocommerce-shop .page-title {
+    margin-bottom: 2rem;
+}
+
+/* ── Comments ───────────────────────────────────────────────────────────── */
+
+.comment-body,
+.comment-content,
+.comment-author,
+.comment-metadata,
+.comment-metadata a,
+.comment-list .reply a {
+    color: #f9f9f9;
+}
+
+/* ── WooCommerce result count / ordering ────────────────────────────────── */
+
+.woocommerce-result-count,
+.woocommerce-ordering select {
+    color: #f9f9f9;
+    background-color: rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Scroll to top ──────────────────────────────────────────────────────── */
+
+.dynamo-scroll-top {
+    color: #f9f9f9;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.site-footer {
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #f9f9f9;
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.site-footer a {
+    color: #D0BE1E;
+}

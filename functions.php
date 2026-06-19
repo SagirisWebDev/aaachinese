@@ -106,6 +106,44 @@ function dynamo_inject_menu_toggle(string $nav_menu, stdClass $args): string {
 }
 add_filter('wp_nav_menu', 'dynamo_inject_menu_toggle', 10, 2);
 
+function dynamo_aaachinese_nav_search(string $items, stdClass $args): string {
+    if (($args->theme_location ?? '') !== 'primary') {
+        return $items;
+    }
+    return '<li class="dynamo-nav-search">' . get_search_form(['echo' => false]) . '</li>' . $items;
+}
+add_filter('wp_nav_menu_items', 'dynamo_aaachinese_nav_search', 10, 2);
+
+function dynamo_aaachinese_live_search(): void {
+    $query = sanitize_text_field(wp_unslash($_GET['q'] ?? ''));
+    if (strlen($query) < 2) {
+        wp_send_json([]);
+    }
+    $results = new WP_Query([
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        's'              => $query,
+        'posts_per_page' => 6,
+        'no_found_rows'  => true,
+    ]);
+    $items = [];
+    foreach ($results->posts as $post) {
+        $product = wc_get_product($post->ID);
+        if (!$product) {
+            continue;
+        }
+        $items[] = [
+            'title' => get_the_title($post->ID),
+            'url'   => get_permalink($post->ID),
+            'price' => wp_strip_all_tags($product->get_price_html()),
+            'thumb' => get_the_post_thumbnail_url($post->ID, 'thumbnail') ?: '',
+        ];
+    }
+    wp_send_json($items);
+}
+add_action('wp_ajax_aaa_live_search', 'dynamo_aaachinese_live_search');
+add_action('wp_ajax_nopriv_aaa_live_search', 'dynamo_aaachinese_live_search');
+
 add_action('wp_enqueue_scripts', function(): void {
     wp_enqueue_script(
         'dynamo-primary-nav',
@@ -114,6 +152,16 @@ add_action('wp_enqueue_scripts', function(): void {
         DYNAMO_VERSION,
         true
     );
+    wp_enqueue_script(
+        'aaa-nav-search',
+        DYNAMO_URL . 'assets/js/nav-search.js',
+        [],
+        (string) filemtime(DYNAMO_PATH . '/assets/js/nav-search.js'),
+        true
+    );
+    wp_localize_script('aaa-nav-search', 'aaaSearch', [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+    ]);
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
@@ -133,6 +181,7 @@ add_action('widgets_init', function(): void {
 
 add_action( 'wp_enqueue_scripts', function() {
     wp_enqueue_style( 'dynamo-style', DYNAMO_URL . 'assets/css/style.css', [], DYNAMO_VERSION );
+    wp_enqueue_style( 'dynamo-aaachinese', DYNAMO_URL . 'assets/css/site-aaachinese.css', ['dynamo-style'], (string) filemtime( DYNAMO_PATH . '/assets/css/site-aaachinese.css' ) );
 } );
 
 add_action('enqueue_block_editor_assets', function(): void {
@@ -154,4 +203,5 @@ add_action('enqueue_block_editor_assets', function(): void {
 function dynamo_bust_css_cache(): void {
     (new Dynamo_CSS_Cache())->bust();
 }
+
 

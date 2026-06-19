@@ -14,21 +14,12 @@
 
 <header id="masthead" class="site-header<?php echo esc_attr( Dynamo_Options::is_feature_enabled( 'sticky_header' ) ? ' dynamo-sticky-header' : '' ); ?>">
     <div class="dynamo-container">
-        <?php if ( has_custom_logo() ) : ?>
-            <div class="site-branding-logo"><?php the_custom_logo(); ?></div>
-        <?php else : ?>
-            <?php if ( is_front_page() && is_home() ) : ?>
-                <h1 class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
-            <?php else : ?>
-                <p class="site-title"><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></p>
-            <?php endif; ?>
-            <?php
-            $description = get_bloginfo( 'description', 'display' );
-            if ( $description ) :
-            ?>
-                <p class="site-description"><?php echo esc_html( $description ); ?></p>
-            <?php endif; ?>
-        <?php endif; ?>
+        <div class="site-branding-logo">
+            <a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+                <img src="<?php echo esc_url( DYNAMO_URL . 'assets/img/AAA-300x115.png' ); ?>"
+                     alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+            </a>
+        </div>
         <?php $dynamo_header_justify = (string) get_theme_mod( 'dynamo_header_menu_cart', 'flex-end' ); ?>
         <div class="dynamo-header-menu-cart dynamo-header-menu-cart--<?php echo esc_attr( $dynamo_header_justify ); ?>">
         <?php
