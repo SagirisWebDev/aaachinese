@@ -375,6 +375,16 @@
     margin-top: auto;
 }
 
+/* Re-assert the [hidden] UA rule for product cards. The display:flex above
+   wins over the UA's `[hidden] { display: none }` on specificity grounds, so
+   the WCLCF JS layer's `hidden` attribute would leave cards visually rendered
+   even when filtered out. This rule restores the expected hide behaviour
+   without giving up the flex layout for visible cards. */
+.woocommerce ul.products li.product[hidden],
+.woocommerce-page ul.products li.product[hidden] {
+    display: none !important;
+}
+
 .woocommerce ul.products li.product img,
 .woocommerce-page ul.products li.product img {
     width: 100%;

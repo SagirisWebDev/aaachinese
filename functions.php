@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-define('DYNAMO_VERSION', '1.3.2');
+define('DYNAMO_VERSION', '1.3.3');
 define('DYNAMO_PATH', get_template_directory());
 define('DYNAMO_URL', trailingslashit(get_template_directory_uri()));
 
