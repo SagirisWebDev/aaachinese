@@ -101,20 +101,31 @@
     color: var(--dynamo-colors-text);
 }
 
-/* ---------- WooCommerce Blocks Checkout compatibility ---------- */
+/* ---------- WooCommerce Blocks Cart + Checkout compatibility ----------
+   On prod the Cart and Checkout pages are saved as block content rather
+   than the classic [woocommerce_cart] / [woocommerce_checkout]
+   shortcodes, so the buttons render via wc-block-components-* classes
+   instead of the classic .checkout-button / #place_order elements. The
+   rules below mirror the classic treatment so the user-visible result is
+   identical regardless of which storage shape the pages use. */
 
 .wp-block-woocommerce-checkout,
-.wc-block-checkout {
+.wc-block-checkout,
+.wp-block-woocommerce-cart,
+.wc-block-cart {
     color: var(--dynamo-colors-text);
 }
 
-/* WC Blocks variant of the same CTAs. Mirrors the classic-checkout
-   treatment above so customers see the same accent-fill on either path. */
+/* Primary CTAs in block-mode: cart "Proceed to Checkout" + checkout
+   "Place Order". Both use the same accent treatment. */
 .wp-block-woocommerce-checkout .wc-block-components-button,
 .wc-block-checkout .wc-block-components-button,
-.wc-block-checkout .wc-block-components-checkout-place-order-button {
-    background-color: var(--dynamo-colors-accent);
-    color: var(--dynamo-colors-background);
+.wc-block-checkout .wc-block-components-checkout-place-order-button,
+.wp-block-woocommerce-cart .wc-block-components-button,
+.wc-block-cart .wc-block-components-button,
+.wc-block-cart .wc-block-cart__submit-button {
+    background-color: var(--dynamo-colors-accent) !important;
+    color: var(--dynamo-colors-background) !important;
     border-radius: var(--dynamo-borders-radius);
     border: 2px solid var(--dynamo-colors-accent);
     transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
@@ -125,15 +136,56 @@
 .wc-block-checkout .wc-block-components-checkout-place-order-button:hover,
 .wp-block-woocommerce-checkout .wc-block-components-button:focus-visible,
 .wc-block-checkout .wc-block-components-button:focus-visible,
-.wc-block-checkout .wc-block-components-checkout-place-order-button:focus-visible {
-    background-color: color-mix(in srgb, var(--dynamo-colors-accent) 82%, black);
+.wc-block-checkout .wc-block-components-checkout-place-order-button:focus-visible,
+.wp-block-woocommerce-cart .wc-block-components-button:hover,
+.wc-block-cart .wc-block-components-button:hover,
+.wc-block-cart .wc-block-cart__submit-button:hover,
+.wp-block-woocommerce-cart .wc-block-components-button:focus-visible,
+.wc-block-cart .wc-block-components-button:focus-visible,
+.wc-block-cart .wc-block-cart__submit-button:focus-visible {
+    background-color: color-mix(in srgb, var(--dynamo-colors-accent) 82%, black) !important;
     border-color: var(--dynamo-colors-background);
     outline: none;
 }
 
 .wp-block-woocommerce-checkout .wc-block-components-button:focus-visible,
 .wc-block-checkout .wc-block-components-button:focus-visible,
-.wc-block-checkout .wc-block-components-checkout-place-order-button:focus-visible {
+.wc-block-checkout .wc-block-components-checkout-place-order-button:focus-visible,
+.wp-block-woocommerce-cart .wc-block-components-button:focus-visible,
+.wc-block-cart .wc-block-components-button:focus-visible,
+.wc-block-cart .wc-block-cart__submit-button:focus-visible {
+    box-shadow: 0 0 0 2px var(--dynamo-colors-background),
+                0 0 0 4px var(--dynamo-colors-accent);
+}
+
+/* Block-checkout "Return to Cart" link. Lives in
+   .wc-block-checkout__actions_row next to Place Order. Default is a
+   bare anchor with no visible affordance on hover/focus, which is a
+   bad UX (especially for keyboard users tabbing between checkout and
+   cart). Treatment: looks like a quiet text link at rest (underline +
+   body text colour), but on hover/focus it gets the accent text +
+   accent border outline so users see exactly where the cursor/focus
+   has landed. Focus-visible adds the same halo + ring used by the
+   primary CTAs for consistency. */
+.wc-block-components-checkout-return-to-cart-button {
+    color: var(--dynamo-colors-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid transparent;
+    border-radius: var(--dynamo-borders-radius);
+    transition: color .15s ease, border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.wc-block-components-checkout-return-to-cart-button:hover,
+.wc-block-components-checkout-return-to-cart-button:focus-visible {
+    color: var(--dynamo-colors-accent);
+    border-color: var(--dynamo-colors-accent);
+    text-decoration: none;
+    outline: none;
+}
+
+.wc-block-components-checkout-return-to-cart-button:focus-visible {
     box-shadow: 0 0 0 2px var(--dynamo-colors-background),
                 0 0 0 4px var(--dynamo-colors-accent);
 }
