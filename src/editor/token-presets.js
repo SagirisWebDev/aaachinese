@@ -16,9 +16,22 @@ const RADIUS_PRESET_OPTIONS = [
 const WIDTH_NATIVE_NOTE  = 'Native width is set above. Clear it to use a Dynamo preset.';
 const RADIUS_NATIVE_NOTE = 'Native radius is set above. Clear it to use a Dynamo preset.';
 
+// Blocks that already provide their own width control. Skip the Dynamo Max
+// Width dropdown so users don't see two redundant width selectors.
+const DYNAMO_WIDTH_EXCLUDED_BLOCKS = ['sagiriswd/tessenav-submenu'];
+
 // undefined, '', and 0 are treated as "unset" per the approved detection rule.
 function isNativeSet(value) {
     return value !== undefined && value !== '' && value !== 0;
+}
+
+function blockHasNativeRadius(supports) {
+    if (!supports) return false;
+    return !!(
+        (supports.__experimentalBorder && supports.__experimentalBorder.radius) ||
+        (supports.border  && supports.border.radius)  ||
+        (supports.borders && supports.borders.radius)
+    );
 }
 
 const { addFilter } = wp.hooks;
@@ -45,14 +58,7 @@ addFilter(
     'blocks.registerBlockType',
     'dynamo/token-presets/add-radius-attribute',
     function addRadiusAttribute(settings) {
-        var s = settings.supports;
-        if (!s) return settings;
-        // Support declared as __experimentalBorder (WP 6.x), border (WP 6.5+), or borders
-        var hasRadius =
-            (s.__experimentalBorder && s.__experimentalBorder.radius) ||
-            (s.border  && s.border.radius)  ||
-            (s.borders && s.borders.radius);
-        if (!hasRadius) {
+        if (!blockHasNativeRadius(settings.supports)) {
             return settings;
         }
         return Object.assign({}, settings, {
@@ -119,16 +125,20 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
                 var attributes    = props.attributes;
                 var setAttributes = props.setAttributes;
 
-                var hasLayout = wp.blocks.hasBlockSupport(name, 'layout');
                 var blockType = wp.blocks.getBlockType(name);
                 var bs = blockType && blockType.supports;
-                var hasRadius = !!(bs && (
-                    (bs.__experimentalBorder && bs.__experimentalBorder.radius) ||
-                    (bs.border  && bs.border.radius)  ||
-                    (bs.borders && bs.borders.radius)
-                ));
 
-                if (!hasLayout && !hasRadius) {
+                // Show Dynamo Max Width only for blocks with layout support that
+                // aren't on the exclusion list (e.g. tessenav-submenu has its own
+                // width control).
+                var showDynamoWidth = wp.blocks.hasBlockSupport(name, 'layout')
+                    && DYNAMO_WIDTH_EXCLUDED_BLOCKS.indexOf(name) === -1;
+
+                // Show Dynamo Radius only when the block does NOT have native
+                // border.radius support — the native control covers it.
+                var showDynamoRadius = !blockHasNativeRadius(bs);
+
+                if (!showDynamoWidth && !showDynamoRadius) {
                     return wp.element.createElement(BlockEdit, props);
                 }
 
@@ -147,7 +157,7 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
 
                 var controls = [];
 
-                if (hasLayout) {
+                if (showDynamoWidth) {
                     controls.push(
                         wp.element.createElement(wp.components.SelectControl, {
                             key: 'dynamo-width',
@@ -167,7 +177,7 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
                     }
                 }
 
-                if (hasRadius) {
+                if (showDynamoRadius) {
                     controls.push(
                         wp.element.createElement(wp.components.SelectControl, {
                             key: 'dynamo-radius',

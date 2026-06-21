@@ -32,21 +32,25 @@ add_filter('render_block', function (string $block_content, array $block): strin
         return $block_content;
     }
 
-    // Skip if the style was already injected by the JS save filter (static blocks).
-    if (str_contains($block_content, '--dynamo-borders-radius-')) {
-        return $block_content;
-    }
-
     $style_value = 'border-radius:var(--dynamo-borders-radius-' . esc_attr($preset) . ')';
 
     $processor = new WP_HTML_Tag_Processor($block_content);
-    if ($processor->next_tag()) {
-        $existing  = $processor->get_attribute('style') ?? '';
-        $new_style = '' !== $existing
-            ? rtrim($existing, ';') . ';' . $style_value
-            : $style_value;
-        $processor->set_attribute('style', $new_style);
+    if (!$processor->next_tag()) {
+        return $block_content;
     }
+
+    // Skip if the wrapper's own style already has a dynamo radius var. Inner
+    // child blocks may carry one — only the outer wrapper's existing style is
+    // relevant for the static-block save path.
+    $existing = $processor->get_attribute('style') ?? '';
+    if (str_contains($existing, '--dynamo-borders-radius-')) {
+        return $block_content;
+    }
+
+    $new_style = '' !== $existing
+        ? rtrim($existing, ';') . ';' . $style_value
+        : $style_value;
+    $processor->set_attribute('style', $new_style);
 
     return (string) $processor;
 }, 10, 2);
