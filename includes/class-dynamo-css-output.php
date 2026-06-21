@@ -13,6 +13,7 @@ class Dynamo_CSS_Output {
 
     public function init(): void {
         add_action('wp_head', [$this, 'print_styles']);
+        add_filter('block_editor_settings_all', [$this, 'inject_editor_styles']);
     }
 
     public function print_styles(): void {
@@ -34,5 +35,25 @@ class Dynamo_CSS_Output {
                 echo '<style id="' . esc_attr( 'dynamo-binding-extras-' . $id ) . '">' . $block . "</style>\n";
             }
         }
+    }
+
+    // Push the same generated CSS into the block-editor iframe so dynamoWidth /
+    // dynamoRadius preview tokens resolve in the canvas like they do on the frontend.
+    public function inject_editor_styles(array $settings): array {
+        $css = $this->generator->generate() ?: '';
+        if ('' !== $css) {
+            $settings['styles'][] = ['css' => $css];
+        }
+
+        if (class_exists('Dynamo_Binding_Registry') && class_exists('Dynamo_Binding_CSS_Renderer')) {
+            $renderer = new Dynamo_Binding_CSS_Renderer(Dynamo_Binding_Registry::instance());
+            foreach ($renderer->extras_blocks() as $block) {
+                if ('' !== $block) {
+                    $settings['styles'][] = ['css' => $block];
+                }
+            }
+        }
+
+        return $settings;
     }
 }

@@ -211,6 +211,55 @@ if (wp.compose && wp.blockEditor && wp.components && wp.element && wp.blocks) {
         'dynamo/token-presets/dynamo-controls',
         withDynamoControls
     );
+
+    // Editor-canvas mirror of the frontend save filters. `blocks.getSaveContent.extraProps`
+    // only affects serialized HTML, so without this HOC the editor preview never reflects
+    // the Dynamo Max Width or Radius selections.
+    var withDynamoCanvasStyles = wp.compose.createHigherOrderComponent(
+        function (BlockListBlock) {
+            return function (props) {
+                var attributes = props.attributes || {};
+                var extraStyle = {};
+
+                if (attributes.dynamoWidth) {
+                    var layout = attributes.layout || {};
+                    if (!isNativeSet(layout.contentSize) && !isNativeSet(layout.wideSize)) {
+                        extraStyle.maxWidth = 'var(--dynamo-layout-width-' + attributes.dynamoWidth + ')';
+                    }
+                }
+
+                if (attributes.dynamoRadius) {
+                    var attrStyle    = attributes.style || {};
+                    var nativeBorder = attrStyle.border || {};
+                    if (!isNativeSet(nativeBorder.radius)) {
+                        extraStyle.borderRadius = 'var(--dynamo-borders-radius-' + attributes.dynamoRadius + ')';
+                    }
+                }
+
+                if (Object.keys(extraStyle).length === 0) {
+                    return wp.element.createElement(BlockListBlock, props);
+                }
+
+                var existingWrapper      = props.wrapperProps || {};
+                var existingWrapperStyle = existingWrapper.style || {};
+                var mergedWrapperProps   = Object.assign({}, existingWrapper, {
+                    style: Object.assign({}, existingWrapperStyle, extraStyle),
+                });
+
+                return wp.element.createElement(
+                    BlockListBlock,
+                    Object.assign({}, props, { wrapperProps: mergedWrapperProps })
+                );
+            };
+        },
+        'withDynamoCanvasStyles'
+    );
+
+    addFilter(
+        'editor.BlockListBlock',
+        'dynamo/token-presets/canvas-styles',
+        withDynamoCanvasStyles
+    );
 }
 
 module.exports = { WIDTH_PRESET_OPTIONS, RADIUS_PRESET_OPTIONS, WIDTH_NATIVE_NOTE, RADIUS_NATIVE_NOTE };
