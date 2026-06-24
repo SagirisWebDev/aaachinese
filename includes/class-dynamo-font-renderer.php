@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 class Dynamo_Font_Renderer {
 
-    private const CACHE_OPTION = 'dynamo_font_renderer_cache';
+    // Transient (not an option) so the rendered @font-face CSS is treated as
+    // disposable cache by hosts/object-cache backends and does not count toward
+    // the "one persistent option per theme" wp.org guideline.
+    private const CACHE_KEY = 'dynamo_font_renderer_cache';
+    private const CACHE_TTL = WEEK_IN_SECONDS;
 
     private const FORMAT_MAP = [
         'woff2' => 'woff2',
@@ -24,6 +28,16 @@ class Dynamo_Font_Renderer {
         add_action('wp_head', [$this, 'print_styles'], 5);
     }
 
+    /**
+     * Removes the legacy `dynamo_font_renderer_cache` row from wp_options that
+     * earlier theme versions wrote before this cache was migrated to a
+     * transient. Hooked on after_switch_theme so it runs once per activation;
+     * a no-op on installs that never had the row.
+     */
+    public static function cleanup_legacy_option_storage(): void {
+        delete_option(self::CACHE_KEY);
+    }
+
     public function print_styles(): void {
         $css = $this->render();
         if ($css === '') {
@@ -36,13 +50,13 @@ class Dynamo_Font_Renderer {
         $entries = $this->manifest->all();
         $hash    = sha1($this->base_url . '|' . json_encode($entries));
 
-        $cached = get_option(self::CACHE_OPTION);
+        $cached = get_transient(self::CACHE_KEY);
         if (is_array($cached) && ($cached['hash'] ?? null) === $hash && isset($cached['css'])) {
             return (string) $cached['css'];
         }
 
         $css = $this->build_css($entries);
-        update_option(self::CACHE_OPTION, ['hash' => $hash, 'css' => $css]);
+        set_transient(self::CACHE_KEY, ['hash' => $hash, 'css' => $css], self::CACHE_TTL);
         return $css;
     }
 

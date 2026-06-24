@@ -5,16 +5,19 @@ import {
     LAYOUT_OPTIONS,
     FEATURE_LABELS,
     PERFORMANCE_LABELS,
+    INTEGRATION_LABELS,
     buildOptions,
     setLayoutMode,
     setFeature,
     setPerformance,
+    setIntegration,
 } from './options-helpers';
 
 const TABS = [
-    { name: 'layout',      title: 'Layout' },
-    { name: 'features',    title: 'Features' },
-    { name: 'performance', title: 'Performance' },
+    { name: 'layout',       title: 'Layout' },
+    { name: 'features',     title: 'Features' },
+    { name: 'performance',  title: 'Performance' },
+    { name: 'integrations', title: 'Integrations' },
 ];
 
 function DynamoOptions() {
@@ -86,6 +89,15 @@ function DynamoOptions() {
                                     label={ label }
                                     checked={ options.performance[ key ] }
                                     onChange={ ( val ) => setOptions( setPerformance( options, key, val ) ) }
+                                />
+                            </div>
+                        ) ) }
+                        { tab.name === 'integrations' && Object.entries( INTEGRATION_LABELS ).map( ( [ key, label ] ) => (
+                            <div key={ key } style={ { marginBottom: '1rem' } }>
+                                <ToggleControl
+                                    label={ label }
+                                    checked={ options.integrations[ key ] }
+                                    onChange={ ( val ) => setOptions( setIntegration( options, key, val ) ) }
                                 />
                             </div>
                         ) ) }

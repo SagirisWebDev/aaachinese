@@ -27,6 +27,14 @@ class Dynamo_Cookie_Integration {
     }
 
     public function detect_and_register(): void {
+        // Opt-in gate: the integration writes into third-party plugin tables
+        // (Complianz banners, Borlabs style cache) and modifies state the user
+        // configured through that plugin. Stay dormant until the user
+        // explicitly enables it under Appearance → Dynamo Options → Integrations.
+        if (! Dynamo_Options::is_integration_enabled('cookie_banner_sync')) {
+            return;
+        }
+
         $has_complianz = ($this->complianz_detector)();
         $has_borlabs   = ($this->borlabs_detector)();
 

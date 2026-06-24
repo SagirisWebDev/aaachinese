@@ -34,6 +34,26 @@ class Dynamo_Cookie_Driver_Complianz implements Dynamo_Cookie_Driver {
             $this->clear_complianz_css_cache();
             update_option('dynamo_complianz_palette_hash', $new_hash, false);
         });
+
+        // Complianz's banner schema has no hover columns, so push hover state
+        // styling via inline CSS bound to Dynamo tokens (stays in sync with
+        // Customizer changes automatically because we reference custom props).
+        add_action('wp_head', [$this, 'print_hover_styles'], 99);
+    }
+
+    public function print_hover_styles(): void {
+        $css = '
+            .cmplz-accept:hover {
+                background-color: var(--dynamo-colors-text) !important;
+                border-color: var(--dynamo-colors-text) !important;
+            }
+            .cmplz-deny:hover,
+            .cmplz-view-preferences:hover {
+                background-color: var(--dynamo-colors-text) !important;
+                color: var(--dynamo-colors-primary) !important;
+            }
+        ';
+        echo "<style id=\"dynamo-complianz-hover\">" . preg_replace('/\s+/', ' ', trim($css)) . "</style>\n";
     }
 
     public function build_palette(Dynamo_Token_Registry $registry): array {
@@ -66,8 +86,8 @@ class Dynamo_Cookie_Driver_Complianz implements Dynamo_Cookie_Driver {
                 'inactive'   => 'colors-accent',
             ],
             'colorpalette_button_accept' => [
-                'background' => 'colors-primary',
-                'border'     => 'colors-primary',
+                'background' => 'colors-accent',
+                'border'     => 'colors-accent',
                 'text'       => 'colors-background',
             ],
             'colorpalette_button_deny' => [

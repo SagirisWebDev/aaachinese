@@ -246,6 +246,32 @@ declare(strict_types=1);
 
 /* -------------- Write your custom customizer controls below this line ---------------- */
 
+// AAA Chinese — custom Customizer binding for the "Order Now" CTA button.
+// Adds a range slider under Appearance → Customize → AAA Restaurant that drives the corner radius of every .aaa-order-cta__button on the site.
+// Lives entirely in the child theme — no edits to Dynamo required.
+dynamo_config_customizer([
+    'id'            => 'aaa_order_cta_radius',
+    'type'          => 'range',
+    'label'         => 'Order button corner radius',
+    'section'       => 'aaa_restaurant',
+    'section_label' => 'AAA Restaurant',
+    'selector'      => '.aaa-order-cta__button',
+    'property'      => 'border-radius',
+    'unit'          => 'px',
+    'default'       => 8,
+    'input_attrs'   => ['min' => 0, 'max' => 40, 'step' => 1],
+    'description'   => 'Rounds the corners of the Order Now button site-wide.',
+]);
+
+// Opt in to Dynamo's cookie-banner colour sync. The parent theme defaults this
+// off (opt-in per WP.org guidelines). AAA Chinese runs Complianz and wants the
+// banner to track the brand palette, so we flip it on at the filter layer.
+add_filter('option_dynamo_options', static function ($options) {
+    $options = is_array($options) ? $options : [];
+    $options['integrations']['cookie_banner_sync'] = true;
+    return $options;
+});
+
 // AAA Chinese site-specific token defaults.
 // These override Dynamo's built-in defaults with the AAA Chinese colour palette
 // and fonts. Values can still be overridden per-install via the Customizer.

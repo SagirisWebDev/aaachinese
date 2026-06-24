@@ -76,6 +76,12 @@ class Dynamo_Options {
                                 'remove_jquery_migrate' => ['type' => 'boolean'],
                             ]
                         ],
+                        'integrations' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'cookie_banner_sync' => ['type' => 'boolean'],
+                            ]
+                        ],
                     ],
                 ],
             ],
@@ -118,6 +124,17 @@ class Dynamo_Options {
         $options  = get_option('dynamo_options', []);
         $features = $options['features'] ?? [];
         return (bool) ($features[$feature] ?? true);
+    }
+
+    /**
+     * Default false: integrations are opt-in. Used by Dynamo_Cookie_Integration
+     * to gate writes into third-party plugin tables. Default opt-in is required
+     * by the WP.org Theme Review Handbook (data behaviour must be explicit).
+     */
+    public static function is_integration_enabled(string $key): bool {
+        $options      = get_option('dynamo_options', []);
+        $integrations = $options['integrations'] ?? [];
+        return (bool) ($integrations[$key] ?? false);
     }
 
     public function add_layout_body_class(array $classes): array {
@@ -205,6 +222,12 @@ class Dynamo_Options {
             : [];
 
         $sanitized['performance'] = array_map('boolval', $raw_perf);
+
+        $raw_integrations = isset($data['integrations']) && is_array($data['integrations'])
+            ? $data['integrations']
+            : [];
+
+        $sanitized['integrations'] = array_map('boolval', $raw_integrations);
 
         return $sanitized;
     }

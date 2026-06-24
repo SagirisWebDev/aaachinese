@@ -33,6 +33,11 @@ require_once DYNAMO_PATH . '/includes/cookie/class-dynamo-cookie-integration.php
 
 add_action('after_setup_theme', [new Dynamo_Cookie_Integration(), 'detect_and_register'], 11);
 
+// One-shot cleanup of a legacy wp_options row that earlier theme versions used
+// to cache rendered @font-face CSS. Now stored as a transient instead — the
+// orphan option row is no longer read and would otherwise sit in the DB.
+add_action('after_switch_theme', ['Dynamo_Font_Renderer', 'cleanup_legacy_option_storage']);
+
 
 if (file_exists(DYNAMO_PATH . '/dynamo-extend-customizer.php')) {
     require_once DYNAMO_PATH . '/dynamo-extend-customizer.php';

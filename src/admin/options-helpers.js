@@ -19,6 +19,10 @@ const PERFORMANCE_LABELS = {
     remove_jquery_migrate: 'Remove jQuery Migrate',
 };
 
+const INTEGRATION_LABELS = {
+    cookie_banner_sync: 'Sync cookie-banner colours with Dynamo tokens (Complianz / Borlabs)',
+};
+
 const FEATURE_DEFAULTS = {
     sticky_header: true,
     breadcrumbs:   true,
@@ -31,12 +35,17 @@ const PERFORMANCE_DEFAULTS = {
     remove_jquery_migrate: false,
 };
 
+const INTEGRATION_DEFAULTS = {
+    cookie_banner_sync: false,
+};
+
 const DEFAULT_LAYOUT_MODE = 'full-width';
 
 function buildOptions(saved) {
     const data = saved && typeof saved === 'object' ? saved : {};
-    const savedFeatures = data.features && typeof data.features === 'object' ? data.features : {};
-    const savedPerf     = data.performance && typeof data.performance === 'object' ? data.performance : {};
+    const savedFeatures     = data.features     && typeof data.features     === 'object' ? data.features     : {};
+    const savedPerf         = data.performance  && typeof data.performance  === 'object' ? data.performance  : {};
+    const savedIntegrations = data.integrations && typeof data.integrations === 'object' ? data.integrations : {};
 
     const features = {};
     for (const key of Object.keys(FEATURE_DEFAULTS)) {
@@ -48,10 +57,16 @@ function buildOptions(saved) {
         performance[key] = savedPerf[key] ?? PERFORMANCE_DEFAULTS[key];
     }
 
+    const integrations = {};
+    for (const key of Object.keys(INTEGRATION_DEFAULTS)) {
+        integrations[key] = savedIntegrations[key] ?? INTEGRATION_DEFAULTS[key];
+    }
+
     return {
         layout_mode: LAYOUT_VALUES.includes(data.layout_mode) ? data.layout_mode : DEFAULT_LAYOUT_MODE,
         features,
         performance,
+        integrations,
     };
 }
 
@@ -67,16 +82,23 @@ function setPerformance(state, key, value) {
     return { ...state, performance: { ...state.performance, [key]: value } };
 }
 
+function setIntegration(state, key, value) {
+    return { ...state, integrations: { ...state.integrations, [key]: value } };
+}
+
 module.exports = {
     LAYOUT_OPTIONS,
     LAYOUT_VALUES,
     FEATURE_LABELS,
     PERFORMANCE_LABELS,
+    INTEGRATION_LABELS,
     FEATURE_DEFAULTS,
     PERFORMANCE_DEFAULTS,
+    INTEGRATION_DEFAULTS,
     DEFAULT_LAYOUT_MODE,
     buildOptions,
     setLayoutMode,
     setFeature,
     setPerformance,
+    setIntegration,
 };
